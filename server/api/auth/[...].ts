@@ -45,6 +45,6 @@ export default NuxtAuthHandler({
     }
   },
   pages: {
-    signIn: '/login'
+    signIn: '/loginPage'
   }
 })

@@ -3,7 +3,7 @@
     <UCard class="w-full max-w-md">
       <template #header>
         <div class="text-center">
-          <img src="/logo-bg.png" alt="AulaLens Logo" class="w-24 h-24 mx-auto mb-4" />
+          <img src="/logo-bg.png" alt="AulaLens Logo" class="w-24 h-24 mx-auto mb-4" >
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
             Bienvenido a AulaLens
           </h1>
@@ -21,13 +21,13 @@
         </div>
 
         <UButton
-          @click="signIn('google')"
           color="white"
           variant="solid"
           size="xl"
           :loading="loading"
           block
           class="justify-center"
+          @click="signIn('google')"
         >
           <template #leading>
             <svg class="w-5 h-5" viewBox="0 0 24 24">
@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-const { signIn, data: session, status } = useAuth()
+const { signIn, status } = useAuth()
 const loading = ref(false)
 
 // Configurar meta tags para la página
@@ -65,7 +65,7 @@ useHead({
 // Redireccionar automáticamente si ya está autenticado
 watchEffect(() => {
   if (status.value === 'authenticated') {
-    navigateTo('/dashboard')
+    navigateTo('/dashboardPage')
   }
 })
 </script>
