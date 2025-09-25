@@ -4,6 +4,12 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxt/eslint', '@nuxt/ui', '@sidebase/nuxt-auth'],
   
+  // Configurar el puerto de desarrollo
+  devServer: {
+    port: 3000,
+    host: 'localhost'
+  },
+  
   auth: {
     baseURL: process.env.AUTH_ORIGIN || 'http://localhost:3000',
     provider: {
@@ -17,6 +23,14 @@ export default defineNuxtConfig({
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
     public: {
       authUrl: process.env.NUXT_AUTH_BASE_URL || "http://localhost:3000/api/auth"
+    }
+  },
+
+  // Configurar redirecciones para las rutas principales
+  nitro: {
+    routeRules: {
+      '/dashboard': { redirect: '/dashboardPage' },
+      '/login': { redirect: '/loginPage' }
     }
   }
 })
