@@ -4,6 +4,9 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxt/eslint', '@nuxt/ui', '@sidebase/nuxt-auth'],
   
+  // Configuración de CSS
+  css: ['~/assets/css/main.css'],
+  
   // Configurar el puerto de desarrollo
   devServer: {
     port: 3000,
