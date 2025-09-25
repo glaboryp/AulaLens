@@ -70,25 +70,27 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error al obtener cursos de Google Classroom:', error)
 
     // Manejar diferentes tipos de errores
-    if (error.code === 401) {
+    const errorCode = (error as { code?: number })?.code
+    
+    if (errorCode === 401) {
       throw createError({
         statusCode: 401,
         statusMessage: 'Token de acceso expirado. Por favor, inicia sesión nuevamente.'
       })
     }
 
-    if (error.code === 403) {
+    if (errorCode === 403) {
       throw createError({
         statusCode: 403,
         statusMessage: 'No tienes permisos para acceder a Google Classroom. Verifica que tengas los permisos necesarios.'
       })
     }
 
-    if (error.code === 404) {
+    if (errorCode === 404) {
       throw createError({
         statusCode: 404,
         statusMessage: 'No se encontraron cursos o el servicio de Google Classroom no está disponible.'
