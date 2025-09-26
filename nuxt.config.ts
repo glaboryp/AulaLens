@@ -25,7 +25,8 @@ export default defineNuxtConfig({
     googleClientId: process.env.GOOGLE_CLIENT_ID,
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
     public: {
-      authUrl: process.env.NUXT_AUTH_BASE_URL || "http://localhost:3000/api/auth"
+      authUrl: process.env.NUXT_AUTH_BASE_URL || "http://localhost:3000/api/auth",
+      googleClientId: process.env.GOOGLE_CLIENT_ID
     }
   },
 
@@ -33,7 +34,7 @@ export default defineNuxtConfig({
   nitro: {
     routeRules: {
       '/dashboard': { redirect: '/dashboardPage' },
-      '/login': { redirect: '/loginPage' }
+      '/login': { redirect: '/' }
     }
   }
 })
