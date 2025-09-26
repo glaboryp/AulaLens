@@ -3,6 +3,10 @@ import { getServerSession } from '#auth'
 
 export default defineEventHandler(async (event) => {
   try {
+    // Obtener parámetros de la query
+    const query = getQuery(event)
+    const role = query.role as string // 'student', 'teacher', o undefined (todos)
+
     // Verificar que el usuario esté autenticado
     const session = await getServerSession(event)
     
@@ -38,9 +42,21 @@ export default defineEventHandler(async (event) => {
     })
 
     const courses = response.data.courses || []
+    const userId = session.user?.id
+
+    // Filtrar cursos según el rol solicitado
+    let filteredCourses = courses
+    if (role === 'student') {
+      // Solo cursos donde el usuario NO es propietario (es estudiante)
+      filteredCourses = courses.filter(course => course.ownerId !== userId)
+    } else if (role === 'teacher') {
+      // Solo cursos donde el usuario SÍ es propietario (es profesor)
+      filteredCourses = courses.filter(course => course.ownerId === userId)
+    }
+    // Si no se especifica rol, devolver todos los cursos
 
     // Formatear la respuesta para incluir solo los datos necesarios
-    const formattedCourses = courses.map(course => ({
+    const formattedCourses = filteredCourses.map(course => ({
       id: course.id,
       name: course.name,
       section: course.section,

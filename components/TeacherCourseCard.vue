@@ -230,34 +230,4 @@ const formatDate = (dateString: string) => {
 .teacher-course-card:hover .course-title {
   color: var(--aulalens-blue);
 }
-
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-  .teacher-course-card {
-    background: #1f2937;
-    border-color: #374151;
-  }
-  
-  .course-title {
-    color: white;
-  }
-  
-  .course-section,
-  .course-description p,
-  .stat-item {
-    color: #d1d5db;
-  }
-  
-  .course-stats {
-    border-color: #4b5563;
-  }
-  
-  .meta-label {
-    color: #9ca3af;
-  }
-  
-  .meta-value {
-    color: #e5e7eb;
-  }
-}
 </style>

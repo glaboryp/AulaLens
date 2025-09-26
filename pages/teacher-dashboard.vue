@@ -73,18 +73,18 @@
         <div v-if="pending" class="flex justify-center items-center py-12">
           <div class="text-center">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-aulalens-blue mx-auto mb-4"/>
-            <p class="text-gray-600 dark:text-gray-400">Cargando tus cursos...</p>
+            <p class="text-gray-600">Cargando tus cursos...</p>
           </div>
         </div>
 
         <!-- Estado de Error -->
         <div v-else-if="error" class="text-center py-12">
-          <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 max-w-md mx-auto">
+          <div class="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
             <Icon name="i-heroicons-exclamation-triangle" class="w-8 h-8 mx-auto mb-2 text-red-600" />
-            <h3 class="text-lg font-semibold text-red-800 dark:text-red-400 mb-2">
+            <h3 class="text-lg font-semibold text-red-800 mb-2">
               Error al cargar los cursos
             </h3>
-            <p class="text-red-600 dark:text-red-400 text-sm mb-4">
+            <p class="text-red-600 text-sm mb-4">
               {{ error.message || 'Ha ocurrido un error inesperado' }}
             </p>
             <UButton
@@ -100,7 +100,7 @@
         <!-- Lista de Cursos que Enseña -->
         <div v-else-if="ownedCourses.length > 0">
           <div class="mb-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">
               Mis Cursos ({{ ownedCourses.length }})
             </h2>
           </div>
@@ -121,10 +121,10 @@
         <div v-else class="text-center py-16">
           <div class="max-w-md mx-auto">
             <Icon name="i-heroicons-academic-cap" class="w-16 h-16 mx-auto text-gray-400 mb-4" />
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">
               No tienes cursos como profesor
             </h3>
-            <p class="text-gray-500 dark:text-gray-400 mb-6">
+            <p class="text-gray-500 mb-6">
               Crea tu primer curso en Google Classroom para comenzar a gestionar estudiantes.
             </p>
             <UButton
@@ -152,16 +152,15 @@ definePageMeta({
 // Composables
 const { data: session } = useAuth()
 
-// Obtener cursos del usuario
-const { data, pending, error, refresh } = await useFetch('/api/classroom/courses')
+// Obtener cursos del usuario como profesor
+const { data, pending, error, refresh } = await useFetch('/api/classroom/courses?role=teacher')
 
 // Información del usuario
 const userInfo = computed(() => session.value?.user)
 
-// Filtrar cursos que el usuario enseña (es propietario)
+// Cursos que el usuario enseña (la API ya los filtra por rol)
 const ownedCourses = computed(() => {
-  if (!data.value?.courses) return []
-  return data.value.courses.filter((course: Course) => course.ownerId === userInfo.value?.email)
+  return data.value?.courses || []
 })
 
 // Estadísticas calculadas
@@ -249,21 +248,5 @@ useHead({
 .stats-label {
   font-size: 0.875rem;
   color: #6b7280;
-}
-
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-  .stats-card {
-    background: #1f2937;
-    border-color: #374151;
-  }
-  
-  .stats-number {
-    color: white;
-  }
-  
-  .stats-label {
-    color: #d1d5db;
-  }
 }
 </style>

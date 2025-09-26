@@ -207,11 +207,11 @@ const sortOptions = [
   { value: 'progreso', label: 'Por progreso' }
 ]
 
-// Obtener los cursos del usuario
+// Obtener los cursos del usuario como estudiante
 const { data: coursesData, pending, error, refresh } = await useFetch<{
   courses: Course[]
   user: UserInfo
-}>('/api/classroom/courses', {
+}>('/api/classroom/courses?role=student', {
   default: () => ({ courses: [], user: {} }),
   server: false,
 })
@@ -220,7 +220,7 @@ const { data: coursesData, pending, error, refresh } = await useFetch<{
 const courses = computed(() => coursesData.value?.courses || [])
 const userInfo = computed(() => coursesData.value?.user || {})
 
-// Cursos filtrados
+// Cursos filtrados (la API ya los filtra por rol, aquí solo aplicamos búsqueda y ordenación)
 const filteredCourses = computed(() => {
   let filtered = [...courses.value]
 
@@ -256,7 +256,7 @@ const filteredCourses = computed(() => {
   return filtered
 })
 
-// Estadísticas computadas (simuladas por ahora)
+// Estadísticas computadas basadas en cursos de estudiante (simuladas por ahora)
 const totalPendingAssignments = computed(() => {
   return courses.value.reduce((total, course) => {
     const hash = course.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0)
@@ -276,7 +276,7 @@ const averageProgress = computed(() => {
 })
 
 const upcomingDeadlines = computed(() => {
-  // Simulado: número de entregas esta semana
+  // Simulado: número de entregas esta semana basado en cursos de estudiante
   return Math.min(courses.value.length, Math.floor(courses.value.length * 0.6))
 })
 

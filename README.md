@@ -25,7 +25,6 @@
 
 **AulaLens** es una aplicación web complementaria que se conecta directamente a la API de Google Classroom para resolver estos problemas. No busca reemplazar Classroom, sino añadir una **capa de visualización y gestión inteligente** que potencia la experiencia para tres roles clave:
 
-* **Coordinadores:** Obtienen una vista de pájaro del progreso de todas las cohortes, identificando rápidamente a los estudiantes que necesitan apoyo.
 * **Profesores:** Visualizan el rendimiento de sus clases y el estado de las entregas de forma sencilla.
 * **Alumnos:** Tienen un dashboard claro con sus tareas pendientes y su progreso general.
 
@@ -38,9 +37,9 @@
 * **🔎 Filtros Dinámicos:** Capacidad para filtrar la información por cohorte (curso), profesor y estado de entrega (entregado, atrasado, faltante).
 
 ### Funcionalidades Extras ✨
-* **🩺 "Health Score" del Estudiante:** Un algoritmo que asigna un puntaje de "salud académica" a cada alumno basado en puntualidad y completitud, permitiendo a los coordinadores intervenir proactivamente.
+* **🩺 "Health Score" del Estudiante:** Un algoritmo que asigna un puntaje de "salud académica" a cada alumno basado en puntualidad y completitud, permitiendo a los profesores intervenir proactivamente.
 * **📈 Reportes Gráficos:** Visualizaciones de datos como el porcentaje de entregas a tiempo vs. atrasadas por cohorte.
-* **🎭 Vistas por Roles:** La interfaz se adapta mostrando la información más relevante según si el usuario es coordinador, profesor o alumno.
+* **🎭 Vistas por Roles:** La interfaz se adapta mostrando la información más relevante según si el usuario es profesor o alumno.
 
 ## 💻 Tech Stack
 

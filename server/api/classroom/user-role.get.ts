@@ -1,10 +1,23 @@
 import { google } from 'googleapis'
 import { getServerSession } from '#auth'
 
+// Interfaz para la sesión extendida con tokens de OAuth
+interface ExtendedSession {
+  user?: {
+    id?: string
+    name?: string | null
+    email?: string | null
+    image?: string | null
+  }
+  expires: string
+  accessToken?: string
+  refreshToken?: string
+}
+
 export default defineEventHandler(async (event) => {
   try {
     // Verificar que el usuario esté autenticado
-    const session = await getServerSession(event) as any
+    const session = await getServerSession(event) as ExtendedSession
     
     if (!session || !session.accessToken) {
       throw createError({
@@ -38,23 +51,17 @@ export default defineEventHandler(async (event) => {
     })
 
     const courses = response.data.courses || []
-    const userId = session.user?.email
+    const userId = session.user?.id
 
     // Analizar roles
     const ownedCourses = courses.filter(course => course.ownerId === userId)
     const enrolledCourses = courses.filter(course => course.ownerId !== userId)
 
-    // Determinar el rol principal
     let primaryRole = 'student'
     
+    // Si tiene al menos 1 curso como profesor, es profesor (incluso si tiene más como estudiante)
     if (ownedCourses.length > 0) {
       primaryRole = 'teacher'
-    }
-
-    // Si tiene muchos cursos como estudiante y pocos como profesor, 
-    // podríamos considerar coordinador si es admin de la organización
-    if (ownedCourses.length > 5) {
-      primaryRole = 'coordinator'
     }
 
     return {
@@ -62,7 +69,6 @@ export default defineEventHandler(async (event) => {
       roles: {
         teacher: ownedCourses.length > 0,
         student: enrolledCourses.length > 0,
-        coordinator: ownedCourses.length > 5 // Simplificación: 5+ cursos = coordinador
       },
       stats: {
         ownedCourses: ownedCourses.length,

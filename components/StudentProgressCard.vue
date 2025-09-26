@@ -9,10 +9,10 @@
         class="flex-shrink-0"
       />
       <div class="flex-1 min-w-0">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white truncate">
+        <h3 class="text-lg font-semibold text-gray-900 truncate">
           {{ student.name }}
         </h3>
-        <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+        <p class="text-sm text-gray-500 truncate">
           {{ student.email }}
         </p>
       </div>
@@ -21,7 +21,7 @@
     <!-- Sección de Progreso -->
     <div class="space-y-2">
       <div class="flex justify-between items-center">
-        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+        <span class="text-sm font-medium text-gray-700">
           Progreso
         </span>
         <span class="text-sm font-semibold" :class="progressTextColor">
@@ -42,7 +42,7 @@
           class="w-2 h-2 rounded-full" 
           :class="progressIndicatorColor"
         />
-        <span class="text-xs text-gray-600 dark:text-gray-400">
+        <span class="text-xs text-gray-600">
           {{ progressStatus }}
         </span>
       </div>
@@ -75,9 +75,9 @@ const progressColor = computed(() => {
 
 // Computed para el color del texto del porcentaje
 const progressTextColor = computed(() => {
-  if (props.student.progress > 70) return 'text-green-600 dark:text-green-400'
-  if (props.student.progress >= 40) return 'text-yellow-600 dark:text-yellow-400'
-  return 'text-red-600 dark:text-red-400'
+  if (props.student.progress > 70) return 'text-green-600'
+  if (props.student.progress >= 40) return 'text-yellow-600'
+  return 'text-red-600'
 })
 
 // Computed para el indicador de color

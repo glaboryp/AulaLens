@@ -58,9 +58,6 @@ const redirectToAppropriateDashboard = async () => {
     if (roleData.primaryRole === 'teacher') {
       console.log('Redirigiendo a teacher-dashboard')
       await navigateTo('/teacher-dashboard')
-    } else if (roleData.primaryRole === 'coordinator') {
-      console.log('Redirigiendo a coordinator-dashboard')
-      await navigateTo('/coordinator-dashboard')  
     } else {
       console.log('Redirigiendo a student-dashboard')
       // Por defecto, ir al dashboard de estudiante

@@ -1,45 +1,34 @@
 <template>
-  <div class="min-h-screen bg-gradient-bg dark:bg-gray-900">
+  <div class="min-h-screen bg-gradient-bg">
     <!-- Navegación superior -->
-    <nav class="bg-white/95 backdrop-blur-sm dark:bg-gray-800/95 shadow-aulalens-blue border-b border-gray-200/20 dark:border-gray-700 sticky top-0 z-50">
+    <nav class="bg-white/95 backdrop-blur-sm shadow-aulalens-blue border-b border-gray-200/20 sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <!-- Logo y navegación principal -->
           <div class="flex items-center">
             <NuxtLink to="/" class="flex items-center">
               <img class="h-8 w-auto" src="/logo-icono.png" alt="AulaLens" >
-              <span class="ml-3 text-xl font-bold text-gray-900 dark:text-white">
+              <span class="ml-3 text-xl font-bold text-gray-900">
                 AulaLens
               </span>
             </NuxtLink>
 
             <!-- Enlaces de navegación -->
-            <div class="hidden md:ml-8 md:flex md:items-center md:space-x-4">
+            <div class="hidden md:ml-8 md:flex md:items-center md:space-x-2">
               <NuxtLink
                 to="/student-dashboard"
-                class="nav-link"
-                active-class="nav-link-active"
+                class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-aulalens-blue hover:bg-blue-50 rounded-lg transition-all duration-200 border border-transparent"
+                active-class="!text-aulalens-blue !bg-blue-50 !border-aulalens-blue shadow-md font-semibold"
               >
-                <Icon name="i-heroicons-academic-cap" class="w-4 h-4 mr-2" />
-                Estudiante
+                🎓 Estudiante
               </NuxtLink>
               
               <NuxtLink
                 to="/teacher-dashboard"
-                class="nav-link"
-                active-class="nav-link-active"
+                class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-aulalens-blue hover:bg-blue-50 rounded-lg transition-all duration-200 border border-transparent"
+                active-class="!text-aulalens-blue !bg-blue-50 !border-aulalens-blue shadow-md font-semibold"
               >
-                <Icon name="i-heroicons-user-group" class="w-4 h-4 mr-2" />
-                Profesor
-              </NuxtLink>
-              
-              <NuxtLink
-                to="/coordinator-dashboard"
-                class="nav-link"
-                active-class="nav-link-active"
-              >
-                <Icon name="i-heroicons-chart-bar-square" class="w-4 h-4 mr-2" />
-                Coordinador
+                👨‍🏫 Profesor
               </NuxtLink>
             </div>
           </div>
@@ -50,7 +39,7 @@
             <!-- Menú desplegable de usuario -->
             <div ref="userMenuRef" class="relative">
               <button 
-                class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-2 rounded-md transition-colors"
+                class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded-md transition-colors"
                 @click="showUserMenu = !showUserMenu"
               >
                 <div class="w-8 h-8 bg-aulalens-blue text-white rounded-full flex items-center justify-center text-sm font-medium">
@@ -67,18 +56,18 @@
               <!-- Dropdown menu -->
               <div 
                 v-show="showUserMenu"
-                class="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
+                class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
               >
                 <!-- Usuario info -->
-                <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-600">
-                  <p class="text-sm font-medium text-gray-900 dark:text-white">{{ userInfo?.name || 'Usuario' }}</p>
-                  <p class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ userInfo?.email || 'usuario@email.com' }}</p>
+                <div class="px-4 py-3 border-b border-gray-200">
+                  <p class="text-sm font-medium text-gray-900">{{ userInfo?.name || 'Usuario' }}</p>
+                  <p class="text-sm text-gray-500 truncate">{{ userInfo?.email || 'usuario@email.com' }}</p>
                 </div>
                 
                 <!-- Menu items -->
                 <div class="py-1">
                   <button
-                    class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600"
+                    class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     @click="() => { console.log('Navegar al perfil'); showUserMenu = false }"
                   >
                     <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,7 +77,7 @@
                   </button>
                   
                   <button
-                    class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600"
+                    class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     @click="() => { console.log('Navegar a configuración'); showUserMenu = false }"
                   >
                     <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,10 +87,10 @@
                     Configuración
                   </button>
                   
-                  <hr class="my-1 border-gray-200 dark:border-gray-600">
+                  <hr class="my-1 border-gray-200">
                   
                   <button
-                    class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                    class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                     @click="handleLogout"
                   >
                     <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,14 +121,6 @@
               active-class="mobile-nav-link-active"
             >
               Profesor
-            </NuxtLink>
-            
-            <NuxtLink
-              to="/coordinator-dashboard"
-              class="mobile-nav-link"
-              active-class="mobile-nav-link-active"
-            >
-              Coordinador
             </NuxtLink>
           </div>
         </div>
@@ -214,7 +195,7 @@ const _userMenuItems = [
   [{
     label: 'Cerrar Sesión',
     icon: 'i-heroicons-arrow-right-on-rectangle',
-    class: 'text-red-600 dark:text-red-400',
+    class: 'text-red-600',
     click: async () => {
       try {
         await signOut({ callbackUrl: '/' })
@@ -234,18 +215,21 @@ const _userMenuItems = [
   border-radius: 0.375rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #6b7280;
+  color: #374151 !important;
+  text-decoration: none;
   transition: all 0.2s;
 }
 
 .nav-link:hover {
-  color: #111827;
+  color: #111827 !important;
   background-color: #f3f4f6;
+  text-decoration: none;
 }
 
 .nav-link-active {
-  color: var(--aulalens-blue);
-  background-color: rgba(60, 164, 216, 0.1);
+  color: var(--aulalens-blue) !important;
+  background-color: rgba(60, 164, 216, 0.15);
+  font-weight: 600;
 }
 
 .mobile-nav-link {
@@ -254,37 +238,20 @@ const _userMenuItems = [
   border-radius: 0.375rem;
   font-size: 1rem;
   font-weight: 500;
-  color: #6b7280;
+  color: #374151 !important;
+  text-decoration: none;
   transition: all 0.2s;
 }
 
 .mobile-nav-link:hover {
-  color: #111827;
+  color: #111827 !important;
   background-color: #f3f4f6;
+  text-decoration: none;
 }
 
 .mobile-nav-link-active {
-  color: var(--aulalens-blue);
-  background-color: rgba(60, 164, 216, 0.1);
-}
-
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-  .nav-link,
-  .mobile-nav-link {
-    color: #d1d5db;
-  }
-
-  .nav-link:hover,
-  .mobile-nav-link:hover {
-    color: #ffffff;
-    background-color: #374151;
-  }
-
-  .nav-link-active,
-  .mobile-nav-link-active {
-    color: var(--aulalens-blue);
-    background-color: rgba(60, 164, 216, 0.2);
-  }
+  color: var(--aulalens-blue) !important;
+  background-color: rgba(60, 164, 216, 0.15);
+  font-weight: 600;
 }
 </style>
