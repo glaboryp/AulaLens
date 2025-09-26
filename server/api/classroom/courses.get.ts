@@ -31,10 +31,10 @@ export default defineEventHandler(async (event) => {
       auth: oauth2Client
     })
 
-    // Obtener la lista de cursos del usuario
+    // Obtener la lista de cursos del usuario (activos y archivados)
     const response = await classroom.courses.list({
-      courseStates: ['ACTIVE'], // Solo cursos activos
-      pageSize: 50 // Máximo 50 cursos por página
+      courseStates: ['ACTIVE', 'ARCHIVED'], // Cursos activos y archivados
+      pageSize: 100 // Máximo 100 cursos por página
     })
 
     const courses = response.data.courses || []
@@ -58,15 +58,12 @@ export default defineEventHandler(async (event) => {
       calendarId: course.calendarId
     }))
 
+    // Retornar directamente en el formato que esperan los componentes
     return {
-      success: true,
-      data: {
-        courses: formattedCourses,
-        totalCount: formattedCourses.length,
-        user: {
-          name: session.user?.name,
-          email: session.user?.email
-        }
+      courses: formattedCourses,
+      user: {
+        name: session.user?.name,
+        email: session.user?.email
       }
     }
 
