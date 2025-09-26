@@ -47,36 +47,45 @@ export default defineEventHandler(async (event) => {
     // Filtrar cursos según el rol solicitado
     let filteredCourses = courses
     if (role === 'student') {
-      // Solo cursos donde el usuario NO es propietario (es estudiante)
+      // Solo cursos donde el usuario no es propietario (es estudiante)
       filteredCourses = courses.filter(course => course.ownerId !== userId)
     } else if (role === 'teacher') {
-      // Solo cursos donde el usuario SÍ es propietario (es profesor)
+      // Solo cursos donde el usuario es propietario (es profesor)
       filteredCourses = courses.filter(course => course.ownerId === userId)
+      
+      // Añadir a cada curso el numero de estudiantes inscritos
+      // Usar Promise.all para esperar a que todas las llamadas asíncronas se completen
+      await Promise.all(
+        filteredCourses.map(async (course) => {
+          try {
+            const studentsResponse = await classroom.courses.students.list({
+              courseId: course.id!,
+              pageSize: 100 // Obtener todos los estudiantes para contar correctamente
+            })
+            const studentCount = studentsResponse.data.students?.length || 0
+            course.studentCount = studentCount
+          } catch (studentError) {
+            console.error(`Error al obtener estudiantes para el curso ${course.id}:`, studentError)
+            course.studentCount = 0 // En caso de error, asumir 0 estudiantes
+          }
+
+          try {
+            const courseworkResponse = await classroom.courses.courseWork.list({
+              courseId: course.id!,
+              pageSize: 100 // Obtener todas las tareas para contar correctamente
+            })
+            const assignmentCount = courseworkResponse.data.courseWork?.length || 0
+            course.assignmentCount = assignmentCount
+          } catch (courseworkError) {
+            console.error(`Error al obtener tareas para el curso ${course.id}:`, courseworkError)
+            course.assignmentCount = 0 // En caso de error, asumir 0 tareas
+          }
+        })
+      )
     }
-    // Si no se especifica rol, devolver todos los cursos
 
-    // Formatear la respuesta para incluir solo los datos necesarios
-    const formattedCourses = filteredCourses.map(course => ({
-      id: course.id,
-      name: course.name,
-      section: course.section,
-      description: course.description,
-      room: course.room,
-      ownerId: course.ownerId,
-      creationTime: course.creationTime,
-      updateTime: course.updateTime,
-      enrollmentCode: course.enrollmentCode,
-      courseState: course.courseState,
-      alternateLink: course.alternateLink,
-      teacherGroupEmail: course.teacherGroupEmail,
-      courseGroupEmail: course.courseGroupEmail,
-      guardiansEnabled: course.guardiansEnabled,
-      calendarId: course.calendarId
-    }))
-
-    // Retornar directamente en el formato que esperan los componentes
     return {
-      courses: formattedCourses,
+      courses: filteredCourses,
       user: {
         name: session.user?.name,
         email: session.user?.email

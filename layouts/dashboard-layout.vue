@@ -16,19 +16,23 @@
             <!-- Enlaces de navegación -->
             <div class="hidden md:ml-8 md:flex md:items-center md:space-x-2">
               <NuxtLink
+                v-if="userRoles.hasStudentCourses || !userRoles.isLoaded"
                 to="/student-dashboard"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-aulalens-blue hover:bg-blue-50 rounded-lg transition-all duration-200 border border-transparent"
-                active-class="!text-aulalens-blue !bg-blue-50 !border-aulalens-blue shadow-md font-semibold"
+                class="nav-link-interactive"
+                active-class="nav-link-active"
+                @click="handleNavigation('/student-dashboard', '🎓 Estudiante')"
               >
-                🎓 Estudiante
+                <span class="ml-2">🎓 Estudiante</span>
               </NuxtLink>
               
               <NuxtLink
+                v-if="userRoles.hasTeacherCourses || !userRoles.isLoaded"
                 to="/teacher-dashboard"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-aulalens-blue hover:bg-blue-50 rounded-lg transition-all duration-200 border border-transparent"
-                active-class="!text-aulalens-blue !bg-blue-50 !border-aulalens-blue shadow-md font-semibold"
+                class="nav-link-interactive"
+                active-class="nav-link-active"
+                @click="handleNavigation('/teacher-dashboard', '👨‍🏫 Profesor')"
               >
-                👨‍🏫 Profesor
+                <span class="ml-2">👨‍🏫 Profesor</span>
               </NuxtLink>
             </div>
           </div>
@@ -68,7 +72,7 @@
                 <div class="py-1">
                   <button
                     class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    @click="() => { console.log('Navegar al perfil'); showUserMenu = false }"
+                    @click="() => showUserMenu = false"
                   >
                     <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -78,7 +82,7 @@
                   
                   <button
                     class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    @click="() => { console.log('Navegar a configuración'); showUserMenu = false }"
+                    @click="() => showUserMenu = false"
                   >
                     <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -105,37 +109,98 @@
         </div>
 
         <!-- Navegación móvil -->
-        <div class="md:hidden pb-4">
+        <div v-if="(userRoles.hasStudentCourses || userRoles.hasTeacherCourses) || !userRoles.isLoaded" class="md:hidden pb-4">
           <div class="flex space-x-1">
             <NuxtLink
+              v-if="userRoles.hasStudentCourses || !userRoles.isLoaded"
               to="/student-dashboard"
               class="mobile-nav-link"
               active-class="mobile-nav-link-active"
             >
-              Estudiante
+              🎓 Estudiante
             </NuxtLink>
             
             <NuxtLink
+              v-if="userRoles.hasTeacherCourses || !userRoles.isLoaded"
               to="/teacher-dashboard"
               class="mobile-nav-link"
               active-class="mobile-nav-link-active"
             >
-              Profesor
+              👨‍🏫 Profesor
             </NuxtLink>
           </div>
         </div>
       </div>
     </nav>
 
+    <!-- Overlay de carga global -->
+    <Transition
+      name="loading-overlay"
+      enter-active-class="loading-overlay-enter-active"
+      leave-active-class="loading-overlay-leave-active"
+      enter-from-class="loading-overlay-enter-from"
+      leave-to-class="loading-overlay-leave-to"
+    >
+      <div 
+        v-if="isLoading" 
+        class="loading-overlay"
+      >
+        <div class="loading-content">
+          <div class="loading-spinner-large" />
+          <p class="loading-text">
+            {{ globalLoadingState.isNavigating ? 'Cambiando dashboard...' : 'Cargando datos...' }}
+          </p>
+        </div>
+      </div>
+    </Transition>
+
     <!-- Contenido principal -->
-    <main>
-      <slot />
+    <main class="main-content">
+      <div class="content-wrapper">
+        <slot />
+      </div>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
 const { data: session, signOut } = useAuth()
+
+// Proteger el composable para SSR
+let globalLoadingComposable
+if (import.meta.client) {
+  globalLoadingComposable = useGlobalLoading()
+} else {
+  // Fallbacks para SSR
+  globalLoadingComposable = {
+    isLoading: ref(false),
+    startNavigation: () => {},
+    finishNavigation: () => {},
+    finishDataLoading: () => {},
+    globalLoadingState: ref({
+      isNavigating: false,
+      isLoadingData: false,
+      currentRoute: null
+    })
+  }
+}
+
+// Composable para roles de usuario (protegido para SSR)
+const { userRoles, fetchUserRoles, getDefaultRoute } = import.meta.client 
+  ? useUserRoles() 
+  : { 
+      userRoles: ref({ hasStudentCourses: true, hasTeacherCourses: true, isLoaded: false }), 
+      fetchUserRoles: async () => ({}), 
+      getDefaultRoute: () => '/student-dashboard' 
+    }
+
+const { 
+  isLoading, 
+  startNavigation, 
+  finishNavigation,
+  finishDataLoading,
+  globalLoadingState 
+} = globalLoadingComposable
 
 // Información del usuario
 const userInfo = computed(() => session.value?.user)
@@ -151,13 +216,92 @@ const handleClickOutside = (event: Event) => {
   }
 }
 
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
+// Watcher para detectar cambios de usuario y refrescar roles
+watch(() => session.value?.user?.email, async (newEmail, oldEmail) => {
+  if (newEmail !== oldEmail && import.meta.client) {
+    // Reset roles when user changes
+    userRoles.value.isLoaded = false
+    await fetchUserRoles()
+    await checkAndRedirectUser()
+  }
+})
+
+onMounted(async () => {
+  if (import.meta.client) {
+    document.addEventListener('click', handleClickOutside)
+    // Limpiar cualquier estado de carga residual al montar
+    finishDataLoading()
+    
+    // Obtener los roles del usuario
+    await fetchUserRoles()
+    
+    // Verificar si el usuario debe ser redirigido
+    await checkAndRedirectUser()
+  }
 })
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
+  if (import.meta.client) {
+    document.removeEventListener('click', handleClickOutside)
+  }
 })
+
+// Función para verificar y redirigir usuario según sus roles
+const checkAndRedirectUser = async () => {
+  if (!import.meta.client) return
+  
+  const route = useRoute()
+  const router = useRouter()
+  
+  // Solo verificar en páginas de dashboard
+  if (!route.path.includes('dashboard')) return
+  
+  const roles = userRoles.value
+  
+  // Si está en student-dashboard pero no tiene cursos de estudiante
+  if (route.path === '/student-dashboard' && !roles.hasStudentCourses && roles.hasTeacherCourses) {
+    await router.push('/teacher-dashboard')
+    return
+  }
+  
+  // Si está en teacher-dashboard pero no tiene cursos de profesor
+  if (route.path === '/teacher-dashboard' && !roles.hasTeacherCourses && roles.hasStudentCourses) {
+    await router.push('/student-dashboard')
+    return
+  }
+  
+  // Si no tiene ningún curso, ir a la ruta por defecto
+  if (!roles.hasStudentCourses && !roles.hasTeacherCourses) {
+    await router.push(getDefaultRoute())
+  }
+}
+
+// Función para manejar navegación con feedback visual
+const handleNavigation = async (path: string, _title: string) => {
+  // Solo ejecutar en el cliente
+  if (!import.meta.client) return
+  
+  const route = useRoute()
+  const router = useRouter()
+  
+  if (route.path === path) return // Ya estamos en esa página
+  
+  // Iniciar navegación con spinner en el botón
+  startNavigation(path)
+  
+  try {
+    await router.push(path)
+    // Terminar navegación - el spinner se mantendrá si hay carga de datos
+    finishNavigation()
+  } catch (error) {
+    console.error('Error de navegación:', error)
+    finishNavigation()
+    // En caso de error, limpiar completamente
+    setTimeout(() => {
+      globalLoadingState.value.currentRoute = null
+    }, 100)
+  }
+}
 
 // Función para manejar el logout
 const handleLogout = async () => {
@@ -253,5 +397,216 @@ const _userMenuItems = [
   color: var(--aulalens-blue) !important;
   background-color: rgba(60, 164, 216, 0.15);
   font-weight: 600;
+}
+
+/* Estilos para transiciones suaves del contenido */
+.main-content {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.content-wrapper {
+  animation: contentFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes contentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Transiciones mejoradas para los enlaces de navegación */
+.nav-link,
+.mobile-nav-link {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-link::before,
+.mobile-nav-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.nav-link:hover::before,
+.mobile-nav-link:hover::before {
+  left: 100%;
+}
+
+/* Transiciones para el menú de usuario */
+.user-menu-enter-active,
+.user-menu-leave-active {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.user-menu-enter-from,
+.user-menu-leave-to {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+}
+
+/* Estilos para navegación interactiva */
+.nav-link-interactive {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.nav-link-interactive:hover {
+  color: var(--aulalens-blue);
+  background-color: rgba(59, 130, 246, 0.05);
+  border-color: rgba(59, 130, 246, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.1);
+}
+
+.nav-link-active {
+  color: var(--aulalens-blue) !important;
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  border-color: var(--aulalens-blue) !important;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
+}
+
+/* Spinner de carga */
+.loading-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #e5e7eb;
+  border-radius: 50%;
+  border-top-color: var(--aulalens-blue);
+  animation: spin 0.8s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Indicador de carga en navegación */
+.nav-link-interactive[data-loading="true"] {
+  pointer-events: none;
+  opacity: 0.7;
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.nav-link-interactive[data-loading="true"]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Overlay de carga global */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(2px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInOverlay 0.3s ease-out;
+}
+
+.loading-content {
+  text-align: center;
+  padding: 2rem;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.loading-spinner-large {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-radius: 50%;
+  border-top-color: var(--aulalens-blue);
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+.loading-text {
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Transiciones del overlay */
+.loading-overlay-enter-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.loading-overlay-leave-active {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.loading-overlay-enter-from {
+  opacity: 0;
+  backdrop-filter: blur(0px);
+  transform: scale(0.98);
+}
+
+.loading-overlay-leave-to {
+  opacity: 0;
+  backdrop-filter: blur(0px);
+  transform: scale(1.02);
+}
+
+@keyframes fadeInOverlay {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(2px);
+    transform: scale(1);
+  }
 }
 </style>

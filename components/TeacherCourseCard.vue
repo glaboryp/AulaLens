@@ -6,12 +6,12 @@
         <p v-if="course.section" class="course-section">{{ course.section }}</p>
       </div>
       <div class="course-status">
-        <UBadge
-          :color="course.courseState === 'ACTIVE' ? 'green' : 'gray'"
-          variant="subtle"
+        <span 
+          :class="badgeClasses"
+          class="course-badge"
         >
-          {{ course.courseState === 'ACTIVE' ? 'Activo' : 'Archivado' }}
-        </UBadge>
+          {{ courseStatusText }}
+        </span>
       </div>
     </div>
 
@@ -23,11 +23,11 @@
     <div class="course-stats">
       <div class="stat-item">
         <Icon name="i-heroicons-user-group" class="w-4 h-4 text-aulalens-blue" />
-        <span>{{ estimatedStudents }} estudiantes</span>
+        <span>{{ course.studentCount }} {{ course.studentCount === 1 ? 'estudiante' : 'estudiantes' }}</span>
       </div>
       <div class="stat-item">
         <Icon name="i-heroicons-document-text" class="w-4 h-4 text-green-600" />
-        <span>{{ estimatedAssignments }} tareas</span>
+        <span>{{ course.assignmentCount }} {{ course.assignmentCount === 1 ? 'tarea' : 'tareas' }}</span>
       </div>
       <div v-if="course.room" class="stat-item">
         <Icon name="i-heroicons-map-pin" class="w-4 h-4 text-purple-600" />
@@ -48,36 +48,16 @@
     </div>
 
     <!-- Acciones -->
-    <div class="course-actions">
+    <div class="flex justify-end">
       <UButton
-        color="primary"
-        variant="soft"
-        size="sm"
-        @click="$emit('viewStudents', course)"
-      >
-        <Icon name="i-heroicons-user-group" class="w-4 h-4 mr-2" />
-        Ver Estudiantes
-      </UButton>
-      
-      <UButton
-        color="gray"
-        variant="soft"
-        size="sm"
-        @click="$emit('viewAssignments', course)"
-      >
-        <Icon name="i-heroicons-document-text" class="w-4 h-4 mr-2" />
-        Tareas
-      </UButton>
-      
-      <UButton
-        color="gray"
+        :to="course.alternateLink"
+        target="_blank"
+        color="neutral"
         variant="ghost"
         size="sm"
-        :to="course.alternateLink"
-        external
-        target="_blank"
+        icon="i-heroicons-arrow-top-right-on-square"
       >
-        <Icon name="i-heroicons-arrow-top-right-on-square" class="w-4 h-4" />
+        Classroom
       </UButton>
     </div>
   </div>
@@ -115,14 +95,14 @@ const truncatedDescription = computed(() => {
     : props.course.description
 })
 
-const estimatedStudents = computed(() => {
-  // Estimación basada en datos reales que se obtendrían de la API
-  return Math.floor(Math.random() * 30) + 15 // Entre 15 y 45 estudiantes
+const badgeClasses = computed(() => {
+  return props.course.courseState === 'ACTIVE' 
+    ? 'bg-green-100 text-green-800 border border-green-200' 
+    : 'bg-gray-100 text-gray-800 border border-gray-200'
 })
 
-const estimatedAssignments = computed(() => {
-  // Estimación basada en datos reales que se obtendrían de la API
-  return Math.floor(Math.random() * 15) + 5 // Entre 5 y 20 tareas
+const courseStatusText = computed(() => {
+  return props.course.courseState === 'ACTIVE' ? 'Activo' : 'Inactivo'
 })
 
 // Utility functions
@@ -146,6 +126,7 @@ const formatDate = (dateString: string) => {
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
   transition: all 0.3s;
+  cursor: pointer;
 }
 
 .teacher-course-card:hover {
@@ -221,13 +202,16 @@ const formatDate = (dateString: string) => {
   font-weight: 500;
 }
 
-.course-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
 .teacher-course-card:hover .course-title {
   color: var(--aulalens-blue);
+}
+
+.course-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 </style>

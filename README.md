@@ -38,7 +38,7 @@
 
 ### Funcionalidades Extras ✨
 * **🩺 "Health Score" del Estudiante:** Un algoritmo que asigna un puntaje de "salud académica" a cada alumno basado en puntualidad y completitud, permitiendo a los profesores intervenir proactivamente.
-* **📈 Reportes Gráficos:** Visualizaciones de datos como el porcentaje de entregas a tiempo vs. atrasadas por cohorte.
+* **📈 Reportes Gráficos:** Visualizaciones de datos como el porcentaje de entregas a tiempo vs. atrasadas.
 * **🎭 Vistas por Roles:** La interfaz se adapta mostrando la información más relevante según si el usuario es profesor o alumno.
 
 ## 💻 Tech Stack

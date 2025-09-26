@@ -51,16 +51,11 @@ const redirectToAppropriateDashboard = async () => {
   try {
     // Obtener información del rol del usuario
     const roleData = await $fetch('/api/classroom/user-role')
-    
-    console.log('Datos del rol del usuario:', roleData)
-    
+        
     // Redirigir según el rol principal
     if (roleData.primaryRole === 'teacher') {
-      console.log('Redirigiendo a teacher-dashboard')
       await navigateTo('/teacher-dashboard')
     } else {
-      console.log('Redirigiendo a student-dashboard')
-      // Por defecto, ir al dashboard de estudiante
       await navigateTo('/student-dashboard')
     }
   } catch (error) {

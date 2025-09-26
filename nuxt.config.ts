@@ -6,6 +6,20 @@ export default defineNuxtConfig({
   
   // Configuración de CSS
   css: ['~/assets/css/main.css'],
+
+  // Configuración de transiciones de página
+  app: {
+    pageTransition: { 
+      name: 'page', 
+      mode: 'out-in',
+      duration: 300
+    },
+    layoutTransition: { 
+      name: 'layout', 
+      mode: 'out-in',
+      duration: 250 
+    }
+  },
   
   // Configurar el puerto de desarrollo
   devServer: {

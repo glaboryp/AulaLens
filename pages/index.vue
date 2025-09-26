@@ -128,17 +128,12 @@ const handleSignIn = async () => {
   try {
     loading.value = true
     error.value = null
-    
-    console.log('🚀 Iniciando proceso de login desde página principal...')
-    console.log('🔍 Estado actual de auth:', status.value)
-    
+        
     await signIn('google', { 
       callbackUrl: '/dashboard-redirect',
       redirect: true 
     })
-    
-    console.log('ℹ️ SignIn ejecutado desde index, esperando redirección...')
-    
+        
   } catch (err) {
     console.error('💥 Error durante el login:', err)
     error.value = `Error inesperado: ${err instanceof Error ? err.message : 'Error desconocido'}`

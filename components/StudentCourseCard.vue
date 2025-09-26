@@ -6,9 +6,6 @@
         <h3 class="course-title" :title="course.name">
           {{ course.name }}
         </h3>
-        <p v-if="course.section" class="course-section">
-          {{ course.section }}
-        </p>
       </div>
       <div class="course-status">
         <span 
