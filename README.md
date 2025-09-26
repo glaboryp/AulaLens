@@ -9,8 +9,8 @@
 
 ## 🚀 Demos
 
-* **Aplicación en vivo:** **[Accede a AulaLens aquí](URL_DE_LA_APP_DESPLEGADA)**
-* **Video Demo (2 min):** **[Mira el video en YouTube](URL_DEL_VIDEO_EN_YOUTUBE)**
+* **Aplicación en vivo:** **[Accede a AulaLens aquí](https://aula-lens.vercel.app/)**
+* **Video Demo (2 min):** **[Mira el video en YouTube](https://youtu.be/aVMRMPnPnxI)**
 
 
 ## 🎯 El Problema
