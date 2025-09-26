@@ -1,5 +1,64 @@
 @import "tailwindcss";
-@import "@nuxt/ui";
+
+/* Variables de colores de AulaLens */
+:root {
+  --aulalens-green: #68be9b;
+  --aulalens-blue: #3ca4d8;
+  --aulalens-purple: #55309a;
+  --aulalens-orange: #ed893d;
+}
+
+/* Clases de utilidad personalizadas para AulaLens */
+@layer utilities {
+  /* Colores de texto */
+  .text-aulalens-green { color: var(--aulalens-green); }
+  .text-aulalens-blue { color: var(--aulalens-blue); }
+  .text-aulalens-purple { color: var(--aulalens-purple); }
+  .text-aulalens-orange { color: var(--aulalens-orange); }
+  
+  /* Fondos sólidos */
+  .bg-aulalens-green { background-color: var(--aulalens-green); }
+  .bg-aulalens-blue { background-color: var(--aulalens-blue); }
+  .bg-aulalens-purple { background-color: var(--aulalens-purple); }
+  .bg-aulalens-orange { background-color: var(--aulalens-orange); }
+  
+  /* Fondos con gradientes */
+  .bg-gradient-primary { 
+    background: linear-gradient(135deg, var(--aulalens-blue), var(--aulalens-purple)); 
+  }
+  .bg-gradient-secondary { 
+    background: linear-gradient(135deg, var(--aulalens-green), var(--aulalens-blue)); 
+  }
+  .bg-gradient-accent { 
+    background: linear-gradient(135deg, var(--aulalens-purple), var(--aulalens-orange)); 
+  }
+  .bg-gradient-bg { 
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0); 
+  }
+  
+  /* Fondos sutiles con opacidad */
+  .bg-aulalens-green-light { background-color: rgba(104, 190, 155, 0.1); }
+  .bg-aulalens-blue-light { background-color: rgba(60, 164, 216, 0.1); }
+  .bg-aulalens-purple-light { background-color: rgba(85, 48, 154, 0.1); }
+  .bg-aulalens-orange-light { background-color: rgba(237, 137, 61, 0.1); }
+  
+  /* Bordes */
+  .border-aulalens-green { border-color: var(--aulalens-green); }
+  .border-aulalens-blue { border-color: var(--aulalens-blue); }
+  .border-aulalens-purple { border-color: var(--aulalens-purple); }
+  .border-aulalens-orange { border-color: var(--aulalens-orange); }
+  
+  /* Bordes con hover */
+  .hover\:border-aulalens-green:hover { border-color: var(--aulalens-green); }
+  .hover\:border-aulalens-blue:hover { border-color: var(--aulalens-blue); }
+  .hover\:border-aulalens-purple:hover { border-color: var(--aulalens-purple); }
+  .hover\:border-aulalens-orange:hover { border-color: var(--aulalens-orange); }
+  
+  /* Sombras con colores de marca */
+  .shadow-aulalens-blue { box-shadow: 0 10px 25px -3px rgba(60, 164, 216, 0.1), 0 4px 6px -2px rgba(60, 164, 216, 0.05); }
+  .shadow-aulalens-green { box-shadow: 0 10px 25px -3px rgba(104, 190, 155, 0.1), 0 4px 6px -2px rgba(104, 190, 155, 0.05); }
+  .shadow-aulalens-purple { box-shadow: 0 10px 25px -3px rgba(85, 48, 154, 0.1), 0 4px 6px -2px rgba(85, 48, 154, 0.05); }
+}
 
 /* Estilos personalizados para AulaLens */
 html {
@@ -8,28 +67,4 @@ html {
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
-}
-
-/* Clases personalizadas */
-.bg-grid-slate-100 {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(148 163 184 / 0.05)'%3e%3cpath d='m0 .5h32m-32 32v-32'/%3e%3c/svg%3e");
-}
-
-.bg-grid-slate-700 {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(51 65 85 / 0.1)'%3e%3cpath d='m0 .5h32m-32 32v-32'/%3e%3c/svg%3e");
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fadeInUp {
-  animation: fadeInUp 0.6s ease-out;
 }
