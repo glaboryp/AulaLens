@@ -6,7 +6,8 @@
 
 ### Una lente de claridad para Google Classroom.
 Proyecto creado para la [Vibeathon](https://nerdearla.devpost.com/) de [Nerdearla 2025](https://nerdear.la/).
-*Tercer puesto en la Hackathon*
+
+*Tercer puesto en la [Hackathon](https://www.youtube.com/live/Gh7DNUjx154?si=sYQoE1mg5w0kMJ1N&t=5640)*
 
 ## 🚀 Demos
 
