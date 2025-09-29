@@ -107,11 +107,20 @@
     <!-- Footer -->
     <div class="border-t border-gray-200 bg-white/70 backdrop-blur-sm">
       <div class="mx-auto max-w-4xl px-6 py-8 lg:px-8">
-        <div class="text-center">
+        <div class="text-center space-y-4">
           <p class="text-sm text-gray-500">
-            Desarrollado para <a class="font-semibold text-aulalens-purple" href="https://semillerodigital.org/" target="_blank">Semillero Digital</a> • 
-            Potenciado por <a class="font-semibold text-aulalens-blue" href="https://developers.google.com/workspace/classroom/reference" target="_blank">Google Classroom API</a>
+            Desarrollado para <a class="font-semibold text-aulalens-purple hover:underline" href="https://semillerodigital.org/" target="_blank">Semillero Digital</a> • 
+            Potenciado por <a class="font-semibold text-aulalens-blue hover:underline" href="https://developers.google.com/workspace/classroom/reference" target="_blank">Google Classroom API</a>
           </p>
+          <div class="flex justify-center items-center space-x-4 text-xs text-gray-400">
+            <NuxtLink to="/privacy-policy" class="hover:text-aulalens-blue transition-colors">
+              Política de Privacidad
+            </NuxtLink>
+            <span>•</span>
+            <span>© 2025 AulaLens</span>
+            <span>•</span>
+            <span>Hecho con ❤️ para la educación</span>
+          </div>
         </div>
       </div>
     </div>
