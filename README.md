@@ -5,7 +5,8 @@
 # AulaLens
 
 ### Una lente de claridad para Google Classroom.
-*Proyecto creado para la [Vibeathon](https://nerdearla.devpost.com/) de [Nerdearla 2025](https://nerdear.la/).*
+Proyecto creado para la [Vibeathon](https://nerdearla.devpost.com/) de [Nerdearla 2025](https://nerdear.la/).
+*Tercer puesto en la Hackathon*
 
 ## 🚀 Demos
 
