@@ -14,6 +14,11 @@ Proyecto creado para la [Vibeathon](https://nerdearla.devpost.com/) de [Nerdearl
 * **Aplicación en vivo:** **[Accede a AulaLens aquí](https://aula-lens.vercel.app/)**
 * **Video Demo (2 min):** **[Mira el video en YouTube](https://youtu.be/aVMRMPnPnxI)**
 
+### ✍️ La Historia Completa: De 0 a App Premiada en 24h
+
+Este proyecto fue creado en una intensa maratón de 24 horas para la Vibeathon de Nerdearla. Si quieres conocer toda la historia, las decisiones técnicas, los errores que casi me cuestan la entrega y los aprendizajes del proceso, he escrito un artículo completo en mi blog.
+
+**➡️ [Lee el post-mortem completo en Dev.to](https://dev.to/glabory/como-construi-aulalens-en-24h-y-gane-un-macbook-en-el-proceso-5li)**
 
 ## 🎯 El Problema
 
