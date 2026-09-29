@@ -8,6 +8,7 @@
     "dev:force": "NODE_OPTIONS='--no-deprecation' nuxt dev --port 3000",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
+    "test:auth": "node --test tests/auth-origin.test.mjs",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
