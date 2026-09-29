@@ -38,9 +38,16 @@ function freePort() {
   })
 }
 
+/** Mock de discovery OIDC y de la API de Classroom; guarda las peticiones a Classroom en `server.classroomRequests`. */
 function startMockGoogle() {
-  const server = http.createServer((_req, res) => {
+  const classroomRequests = []
+  const server = http.createServer((req, res) => {
     res.setHeader('content-type', 'application/json')
+    if (req.url.startsWith('/v1/courses')) {
+      classroomRequests.push({ url: req.url, headers: req.headers })
+      res.end(JSON.stringify({ courses: [{ id: 'course-1', name: 'Curso de prueba', ownerId: 'otro-usuario' }] }))
+      return
+    }
     res.end(JSON.stringify({
       issuer: 'https://accounts.google.com',
       authorization_endpoint: GOOGLE_AUTH_ENDPOINT,
@@ -50,6 +57,7 @@ function startMockGoogle() {
       response_types_supported: ['code']
     }))
   })
+  server.classroomRequests = classroomRequests
   return new Promise((resolve) => {
     server.listen(0, '127.0.0.1', () => resolve(server))
   })
@@ -135,7 +143,7 @@ export async function startAuthServer(env = {}) {
       req.end()
     })
 
-  return { started, exited, stop, request, getOutput: () => output }
+  return { started, exited, stop, request, getOutput: () => output, classroomRequests: mockGoogle.classroomRequests }
 }
 
 /** Convierte cabeceras Set-Cookie en [{ name, value, attrs, raw }]. */

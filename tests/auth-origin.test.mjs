@@ -272,3 +272,80 @@ describe('endpoints /api/debug/* de configuración', () => {
     }
   })
 })
+
+const ACCESS_TOKEN = 'ya29.test-google-access-token'
+const REFRESH_TOKEN = '1//test-google-refresh-token'
+
+/** Cookie de sesión next-auth (JWT cifrado) como la que deja el callback de Google tras el login. */
+async function forgeSessionCookie({ secret, secure }) {
+  const { encode } = await import('next-auth/jwt')
+  const user = { id: 'google-user-1', name: 'Docente Prueba', email: 'docente@example.com', image: null }
+  const jwt = await encode({
+    secret,
+    token: { sub: user.id, name: user.name, email: user.email, user, accessToken: ACCESS_TOKEN, refreshToken: REFRESH_TOKEN }
+  })
+  return `${secure ? '__Secure-' : ''}next-auth.session-token=${jwt}`
+}
+
+function assertNoOAuthTokens(body, where) {
+  for (const value of [ACCESS_TOKEN, REFRESH_TOKEN]) {
+    assert.ok(!body.includes(value), `${where} expone un token OAuth: ${body}`)
+  }
+  assert.doesNotMatch(body, /accessToken|refreshToken/, `${where} expone claves de tokens: ${body}`)
+}
+
+describe('tokens OAuth de Google: nunca llegan al navegador', () => {
+  const proxied = { publicHost: PUBLIC_HOST, proto: 'https' }
+  let server
+  let cookie
+
+  before(async () => {
+    server = await boot({ AUTH_ORIGIN: PUBLIC_ORIGIN })
+    cookie = await forgeSessionCookie({ secret: 'test-secret-test-secret-test-secret', secure: true })
+  })
+
+  test('/api/auth/session devuelve el usuario sin accessToken ni refreshToken', async () => {
+    assert.equal(server.started, true, server.getOutput())
+    const res = await server.request('/api/auth/session', { ...proxied, headers: { cookie } })
+    assert.equal(res.status, 200, res.body)
+    const session = JSON.parse(res.body)
+    assert.equal(session.user?.email, 'docente@example.com')
+    assert.equal(session.user?.id, 'google-user-1')
+    assertNoOAuthTokens(res.body, '/api/auth/session')
+  })
+
+  test('/api/debug/session responde 404 en producción y no filtra tokens', async () => {
+    const res = await server.request('/api/debug/session', { ...proxied, headers: { cookie } })
+    assert.equal(res.status, 404, `debería ser 404, fue ${res.status}: ${res.body.slice(0, 200)}`)
+    assertNoOAuthTokens(res.body, '/api/debug/session')
+  })
+
+  test('el servidor sigue usando el accessToken para llamar a Google Classroom', async () => {
+    const res = await server.request('/api/classroom/courses', { ...proxied, headers: { cookie } })
+    assert.equal(res.status, 200, res.body)
+    assert.equal(JSON.parse(res.body).courses[0].id, 'course-1')
+    assertNoOAuthTokens(res.body, '/api/classroom/courses')
+    assert.ok(server.classroomRequests.length > 0, 'no se llamó a Classroom')
+    assert.equal(server.classroomRequests.at(-1).headers.authorization, `Bearer ${ACCESS_TOKEN}`)
+  })
+
+  test('sin sesión, /api/classroom/courses no llama a Classroom', async () => {
+    const before = server.classroomRequests.length
+    const res = await server.request('/api/classroom/courses', proxied)
+    assert.notEqual(res.status, 200, res.body)
+    assert.equal(server.classroomRequests.length, before)
+  })
+
+  test('en desarrollo /api/debug/session tampoco devuelve tokens', async () => {
+    const secret = 'dev-auth-secret-dev-auth-secret-1234'
+    const devServer = await startDevServer({ NUXT_AUTH_SECRET: secret, GOOGLE_CLIENT_ID: 'x.apps.googleusercontent.com', GOOGLE_CLIENT_SECRET: 'dev-client-secret-1234567890' })
+    servers.push(devServer)
+    assert.equal(devServer.started, true, devServer.getOutput())
+
+    const devCookie = await forgeSessionCookie({ secret, secure: false })
+    const res = await devServer.request('/api/debug/session', { headers: { cookie: devCookie } })
+    assert.equal(res.status, 200, res.body.slice(0, 300))
+    assert.equal(JSON.parse(res.body).hasSession, true)
+    assertNoOAuthTokens(res.body, '/api/debug/session (dev)')
+  })
+})

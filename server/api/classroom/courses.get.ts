@@ -9,8 +9,9 @@ export default defineEventHandler(async (event) => {
 
     // Verificar que el usuario esté autenticado
     const session = await getServerSession(event)
+    const tokens = await getGoogleOAuthTokens(event)
     
-    if (!session || !session.accessToken) {
+    if (!session || !tokens) {
       throw createError({
         statusCode: 401,
         statusMessage: 'No autorizado. Debes iniciar sesión primero.'
@@ -25,8 +26,8 @@ export default defineEventHandler(async (event) => {
 
     // Establecer las credenciales con el token de acceso del usuario
     oauth2Client.setCredentials({
-      access_token: session.accessToken,
-      refresh_token: session.refreshToken
+      access_token: tokens.accessToken,
+      refresh_token: tokens.refreshToken
     })
 
     // Crear el cliente de Google Classroom
