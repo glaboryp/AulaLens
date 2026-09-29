@@ -8,7 +8,7 @@
 import { after, before, describe, test } from 'node:test'
 import assert from 'node:assert/strict'
 import vm from 'node:vm'
-import { buildWithoutAuthOrigin, GOOGLE_AUTH_ENDPOINT, parseSetCookies, startAuthServer } from './support/auth-server.mjs'
+import { buildWithoutAuthOrigin, GOOGLE_AUTH_ENDPOINT, parseSetCookies, startAuthServer, startDevServer } from './support/auth-server.mjs'
 
 const PUBLIC_ORIGIN = 'https://aulalens.example.com'
 const PUBLIC_HOST = 'aulalens.example.com'
@@ -200,13 +200,6 @@ describe('build sin AUTH_ORIGIN y arranque con origen HTTPS: configuración púb
     assert.doesNotMatch(html, /localhost/)
   })
 
-  test('el config del servidor por petición (/api/debug/auth-config) coincide con el del cliente', async () => {
-    const res = await server.request('/api/debug/auth-config', proxied)
-    assert.equal(res.status, 200)
-    assert.equal(JSON.parse(res.body).authUrl, config.public.authUrl)
-    assert.equal(JSON.parse(res.body).authUrl, `${PUBLIC_ORIGIN}/api/auth`)
-  })
-
   test('el origen sale del runtime, no del build: otro AUTH_ORIGIN en otro arranque se refleja', async () => {
     const other = await boot({ AUTH_ORIGIN: 'https://otra.example.org' })
     assert.equal(other.started, true, other.getOutput())
@@ -223,5 +216,59 @@ describe('build sin AUTH_ORIGIN y arranque con origen HTTPS: configuración púb
     assert.notEqual(await conflicting.exited, 0)
     assert.match(conflicting.getOutput(), /NUXT_PUBLIC_AUTH_COMPUTED_ORIGIN/)
     assert.match(conflicting.getOutput(), /AUTH_ORIGIN/)
+  })
+})
+
+describe('endpoints /api/debug/* de configuración', () => {
+  const proxied = { publicHost: PUBLIC_HOST, proto: 'https' }
+  const debugPaths = ['/api/debug/auth-config', '/api/debug/google-config']
+  const secretValues = ['test-secret', 'test-client-id', 'test-client-secret']
+
+  test('en producción responden 404 y no filtran metadatos de secretos', async () => {
+    const server = await boot({ AUTH_ORIGIN: PUBLIC_ORIGIN })
+    assert.equal(server.started, true, server.getOutput())
+
+    for (const path of debugPaths) {
+      const res = await server.request(path, proxied)
+      assert.equal(res.status, 404, `${path} debería ser 404, fue ${res.status}: ${res.body.slice(0, 200)}`)
+      for (const value of secretValues) {
+        assert.ok(!res.body.includes(value), `${path} filtra ${value}`)
+      }
+      assert.doesNotMatch(res.body, /length|prefix|suffix|valid|hasAuthSecret|hasGoogle/i, `${path} expone metadatos: ${res.body}`)
+    }
+  })
+
+  test('tampoco se sirven con otros métodos en producción', async () => {
+    const server = await boot({ AUTH_ORIGIN: PUBLIC_ORIGIN })
+    for (const path of debugPaths) {
+      const res = await server.request(path, { ...proxied, method: 'POST', body: '{}' })
+      assert.notEqual(res.status, 200, `${path} respondió 200 a POST`)
+      assert.ok(!res.body.includes('test-secret'))
+    }
+  })
+
+  test('en desarrollo siguen disponibles pero sin prefijos, sufijos ni longitudes de secretos', async () => {
+    const dev = {
+      GOOGLE_CLIENT_ID: 'abcdefghijklmnop.apps.googleusercontent.com',
+      GOOGLE_CLIENT_SECRET: 'GOCSPX-verysecretvalue1234567890',
+      NUXT_AUTH_SECRET: 'dev-auth-secret-dev-auth-secret-1234'
+    }
+    const devServer = await startDevServer(dev)
+    servers.push(devServer)
+    assert.equal(devServer.started, true, devServer.getOutput())
+
+    for (const path of debugPaths) {
+      const res = await devServer.request(path)
+      assert.equal(res.status, 200, `${path}: ${res.body.slice(0, 300)}`)
+      const body = JSON.parse(res.body)
+      for (const key of Object.keys(body)) {
+        assert.doesNotMatch(key, /length|prefix|suffix/i, `${path} expone la clave ${key}`)
+      }
+      for (const value of Object.values(dev)) {
+        for (const fragment of [value.slice(0, 8), value.slice(-8)]) {
+          assert.ok(!res.body.includes(fragment), `${path} filtra un fragmento de un secreto: ${fragment}`)
+        }
+      }
+    }
   })
 })

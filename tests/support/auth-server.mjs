@@ -151,3 +151,66 @@ export function parseSetCookies(headers) {
     }
   })
 }
+
+/**
+ * Arranca `nuxt dev` (import.meta.dev = true) en un puerto libre. Devuelve la misma
+ * interfaz que startAuthServer, pero `stop` mata todo el grupo de procesos.
+ */
+export async function startDevServer(env = {}) {
+  const port = await freePort()
+  const child = spawn('pnpm', ['exec', 'nuxt', 'dev', '--port', String(port), '--host', '127.0.0.1'], {
+    cwd: root,
+    detached: true,
+    env: {
+      PATH: process.env.PATH,
+      HOME: process.env.HOME,
+      NODE_OPTIONS: '--no-deprecation',
+      AUTH_ORIGIN: 'http://localhost:3000',
+      ...env
+    },
+    stdio: ['ignore', 'pipe', 'pipe']
+  })
+
+  let output = ''
+  child.stdout.on('data', chunk => (output += chunk))
+  child.stderr.on('data', chunk => (output += chunk))
+  const exited = new Promise(resolve => child.once('exit', code => resolve(code)))
+
+  const request = (pathname, { method = 'GET', headers = {} } = {}) =>
+    new Promise((resolve, reject) => {
+      const req = http.request({ host: '127.0.0.1', port, path: pathname, method, headers }, (res) => {
+        let data = ''
+        res.on('data', chunk => (data += chunk))
+        res.on('end', () => resolve({ status: res.statusCode, headers: res.headers, body: data }))
+      })
+      req.on('error', reject)
+      req.end()
+    })
+
+  // En dev el servidor tarda en compilar: se espera a que /api/auth/providers responda.
+  let started = false
+  const deadline = Date.now() + 120000
+  while (Date.now() < deadline && child.exitCode === null) {
+    try {
+      const res = await request('/api/auth/providers')
+      if (res.status === 200) {
+        started = true
+        break
+      }
+    } catch {
+      // aún no escucha
+    }
+    await new Promise(resolve => setTimeout(resolve, 500))
+  }
+
+  const stop = async () => {
+    try {
+      process.kill(-child.pid)
+    } catch {
+      // ya terminó
+    }
+    await exited
+  }
+
+  return { started, exited, stop, request, getOutput: () => output }
+}
