@@ -1,0 +1,2 @@
+patchedDependencies:
+  next-auth@4.24.15: patches/next-auth@4.24.15.patch
