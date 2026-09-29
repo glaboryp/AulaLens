@@ -1,5 +1,5 @@
-export default defineEventHandler((_event) => {
-  const config = useRuntimeConfig()
+export default defineEventHandler((event) => {
+  const config = useRuntimeConfig(event)
   
   return {
     hasAuthSecret: !!config.authSecret,

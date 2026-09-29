@@ -28,7 +28,9 @@ export default defineNuxtConfig({
   },
   
   auth: {
-    baseURL: process.env.AUTH_ORIGIN || 'http://localhost:3000',
+    // Solo un valor de plantilla para el build: el origen real es AUTH_ORIGIN en
+    // runtime y lo aplica server/plugins/auth-origin.ts (NUXT_PUBLIC_AUTH_*).
+    baseURL: 'http://localhost:3000',
     provider: {
       type: 'authjs'
     }
@@ -39,7 +41,8 @@ export default defineNuxtConfig({
     googleClientId: process.env.GOOGLE_CLIENT_ID,
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
     public: {
-      authUrl: process.env.NUXT_AUTH_BASE_URL || "http://localhost:3000/api/auth",
+      // Se rellena en runtime a partir de AUTH_ORIGIN (server/plugins/auth-origin.ts)
+      authUrl: '',
       googleClientId: process.env.GOOGLE_CLIENT_ID
     }
   },

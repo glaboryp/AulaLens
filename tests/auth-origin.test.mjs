@@ -5,12 +5,17 @@
 // deriva el origen solo de NEXTAUTH_URL / VERCEL / AUTH_TRUST_HOST. Sin ellos usa
 // http://localhost:3000, lo que rompe `redirect_uri` y el atributo Secure de las
 // cookies detrás de un proxy HTTPS que no sea Vercel.
-import { after, describe, test } from 'node:test'
+import { after, before, describe, test } from 'node:test'
 import assert from 'node:assert/strict'
-import { GOOGLE_AUTH_ENDPOINT, parseSetCookies, startAuthServer } from './support/auth-server.mjs'
+import vm from 'node:vm'
+import { buildWithoutAuthOrigin, GOOGLE_AUTH_ENDPOINT, parseSetCookies, startAuthServer } from './support/auth-server.mjs'
 
 const PUBLIC_ORIGIN = 'https://aulalens.example.com'
 const PUBLIC_HOST = 'aulalens.example.com'
+
+// Todos los tests corren contra un build hecho SIN AUTH_ORIGIN (como un CI
+// genérico) y arrancado después con el origen público: el escenario real de despliegue.
+before(() => buildWithoutAuthOrigin())
 
 const servers = []
 async function boot(env) {
@@ -151,5 +156,72 @@ describe('configuración inválida: falla al arrancar con un mensaje claro', () 
     assert.equal(server.started, false, 'el servidor no debería arrancar')
     assert.notEqual(await server.exited, 0)
     assert.match(server.getOutput(), /AUTH_ORIGIN/)
+  })
+})
+
+/** Extrae `window.__NUXT__.config` del HTML SSR: es la configuración que recibe el cliente. */
+function extractClientConfig(html) {
+  const script = html.match(/<script>(window\.__NUXT__=\{\};window\.__NUXT__\.config=.*?)<\/script>/s)?.[1]
+  assert.ok(script, 'no se encontró window.__NUXT__.config en el HTML')
+  const sandbox = { window: {} }
+  vm.runInNewContext(script, sandbox)
+  return sandbox.window.__NUXT__.config
+}
+
+describe('build sin AUTH_ORIGIN y arranque con origen HTTPS: configuración pública del cliente', () => {
+  const proxied = { publicHost: PUBLIC_HOST, proto: 'https' }
+  let server
+  let html
+  let config
+
+  test('arranca y sirve la home', async () => {
+    server = await boot({ AUTH_ORIGIN: PUBLIC_ORIGIN })
+    assert.equal(server.started, true, server.getOutput())
+    const res = await server.request('/', proxied)
+    assert.equal(res.status, 200)
+    html = res.body
+    config = extractClientConfig(html)
+  })
+
+  test('auth.computed (origin y fullBaseUrl) usa AUTH_ORIGIN, no localhost', () => {
+    const { computed } = config.public.auth
+    assert.equal(computed.origin, PUBLIC_ORIGIN)
+    assert.equal(computed.pathname, '/api/auth')
+    assert.equal(computed.fullBaseUrl, `${PUBLIC_ORIGIN}/api/auth`)
+  })
+
+  test('auth.baseURL y authUrl públicos usan AUTH_ORIGIN', () => {
+    assert.equal(config.public.auth.baseURL, PUBLIC_ORIGIN)
+    assert.equal(config.public.authUrl, `${PUBLIC_ORIGIN}/api/auth`)
+  })
+
+  test('ni la config ni el payload/HTML enviado al cliente contienen localhost', () => {
+    assert.doesNotMatch(JSON.stringify(config), /localhost/)
+    assert.doesNotMatch(html, /localhost/)
+  })
+
+  test('el config del servidor por petición (/api/debug/auth-config) coincide con el del cliente', async () => {
+    const res = await server.request('/api/debug/auth-config', proxied)
+    assert.equal(res.status, 200)
+    assert.equal(JSON.parse(res.body).authUrl, config.public.authUrl)
+    assert.equal(JSON.parse(res.body).authUrl, `${PUBLIC_ORIGIN}/api/auth`)
+  })
+
+  test('el origen sale del runtime, no del build: otro AUTH_ORIGIN en otro arranque se refleja', async () => {
+    const other = await boot({ AUTH_ORIGIN: 'https://otra.example.org' })
+    assert.equal(other.started, true, other.getOutput())
+    const res = await other.request('/', { publicHost: 'otra.example.org', proto: 'https' })
+    assert.equal(extractClientConfig(res.body).public.auth.computed.fullBaseUrl, 'https://otra.example.org/api/auth')
+  })
+
+  test('falla al arrancar si un NUXT_PUBLIC_AUTH_* explícito contradice AUTH_ORIGIN', async () => {
+    const conflicting = await boot({
+      AUTH_ORIGIN: PUBLIC_ORIGIN,
+      NUXT_PUBLIC_AUTH_COMPUTED_ORIGIN: 'https://otro.example.com'
+    })
+    assert.equal(conflicting.started, false, 'el servidor no debería arrancar')
+    assert.notEqual(await conflicting.exited, 0)
+    assert.match(conflicting.getOutput(), /NUXT_PUBLIC_AUTH_COMPUTED_ORIGIN/)
+    assert.match(conflicting.getOutput(), /AUTH_ORIGIN/)
   })
 })

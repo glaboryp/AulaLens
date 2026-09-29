@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
 import http from 'node:http'
 import net from 'node:net'
 import path from 'node:path'
@@ -8,6 +8,22 @@ import { existsSync } from 'node:fs'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const serverEntry = path.join(root, '.output/server/index.mjs')
 const preload = path.join(root, 'tests/support/mock-google-discovery.cjs')
+
+/**
+ * Construye la app como en un pipeline de CI sin origen público: AUTH_ORIGIN y
+ * NEXTAUTH_URL se fuerzan a vacío (c12/dotenv no sobrescribe variables ya
+ * definidas, así que un `.env` local tampoco los cuela en el build).
+ */
+export function buildWithoutAuthOrigin() {
+  const result = spawnSync('pnpm', ['exec', 'nuxt', 'build'], {
+    cwd: root,
+    env: { ...process.env, AUTH_ORIGIN: '', NEXTAUTH_URL: '' },
+    encoding: 'utf8'
+  })
+  if (result.status !== 0) {
+    throw new Error(`nuxt build falló (${result.status}):\n${result.stdout}\n${result.stderr}`)
+  }
+}
 
 export const GOOGLE_AUTH_ENDPOINT = 'https://accounts.google.com/o/oauth2/v2/auth'
 

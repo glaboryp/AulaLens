@@ -28,6 +28,38 @@ function toOrigin(name: string, value: string): string {
 }
 
 /**
+ * Variables NUXT_PUBLIC_* que Nitro aplica sobre el runtimeConfig en cada
+ * petición (`useRuntimeConfig(event)`). Así la configuración pública que recibe
+ * el cliente (`computed.fullBaseUrl`, `baseURL`, `authUrl`) sale del mismo
+ * AUTH_ORIGIN de runtime y no de un valor horneado durante el build.
+ */
+export function publicAuthConfigEnv(origin: string): Record<string, string> {
+  return {
+    NUXT_PUBLIC_AUTH_BASE_URL: origin,
+    NUXT_PUBLIC_AUTH_COMPUTED_ORIGIN: origin,
+    NUXT_PUBLIC_AUTH_COMPUTED_FULL_BASE_URL: `${origin}${AUTH_BASE_PATH}`,
+    NUXT_PUBLIC_AUTH_URL: `${origin}${AUTH_BASE_PATH}`
+  }
+}
+
+/**
+ * Aplica la config pública derivada de `origin`. Si alguna de esas variables ya
+ * está definida con otro valor, falla en vez de duplicar orígenes en silencio.
+ */
+export function applyPublicAuthConfigEnv(env: Record<string, string | undefined>, origin: string): void {
+  for (const [name, value] of Object.entries(publicAuthConfigEnv(origin))) {
+    const current = env[name]?.trim()
+    if (current && current.replace(/\/+$/, '') !== value) {
+      throw new Error(
+        `${name}="${current}" contradice AUTH_ORIGIN (${origin}). `
+        + 'La config pública de auth se deriva de AUTH_ORIGIN en runtime; elimina esa variable o haz que coincida.'
+      )
+    }
+    env[name] = value
+  }
+}
+
+/**
  * Devuelve el origen que debe usarse como NEXTAUTH_URL.
  * - AUTH_ORIGIN es obligatorio salvo en desarrollo (por defecto http://localhost:3000).
  * - Si NEXTAUTH_URL ya está definida, debe apuntar al mismo origen que AUTH_ORIGIN.
