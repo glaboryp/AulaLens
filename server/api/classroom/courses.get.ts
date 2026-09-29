@@ -2,21 +2,21 @@ import { google } from 'googleapis'
 import { getServerSession } from '#auth'
 
 export default defineEventHandler(async (event) => {
+  // Verificar que el usuario esté autenticado
+  const session = await getServerSession(event)
+  const tokens = await getGoogleOAuthTokens(event)
+  
+  if (!session || !tokens) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'No autorizado. Debes iniciar sesión primero.'
+    })
+  }
+
   try {
     // Obtener parámetros de la query
     const query = getQuery(event)
     const role = query.role as string // 'student', 'teacher', o undefined (todos)
-
-    // Verificar que el usuario esté autenticado
-    const session = await getServerSession(event)
-    const tokens = await getGoogleOAuthTokens(event)
-    
-    if (!session || !tokens) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'No autorizado. Debes iniciar sesión primero.'
-      })
-    }
 
     // Configurar el cliente OAuth2 de Google
     const oauth2Client = new google.auth.OAuth2(

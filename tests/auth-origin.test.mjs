@@ -329,10 +329,12 @@ describe('tokens OAuth de Google: nunca llegan al navegador', () => {
     assert.equal(server.classroomRequests.at(-1).headers.authorization, `Bearer ${ACCESS_TOKEN}`)
   })
 
-  test('sin sesión, /api/classroom/courses no llama a Classroom', async () => {
+  test('sin sesión, los endpoints de Classroom responden 401 sin llamar a Google', async () => {
     const before = server.classroomRequests.length
-    const res = await server.request('/api/classroom/courses', proxied)
-    assert.notEqual(res.status, 200, res.body)
+    for (const path of ['/api/classroom/courses', '/api/classroom/user-role', '/api/classroom/students', '/api/classroom/students/course-1']) {
+      const res = await server.request(path, proxied)
+      assert.equal(res.status, 401, `${path}: ${res.body.slice(0, 300)}`)
+    }
     assert.equal(server.classroomRequests.length, before)
   })
 
