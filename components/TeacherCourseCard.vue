@@ -50,7 +50,7 @@
     <!-- Acciones -->
     <div class="flex justify-end">
       <UButton
-        :to="course.alternateLink"
+        :to="course.alternateLink ?? undefined"
         target="_blank"
         color="neutral"
         variant="ghost"
@@ -65,16 +65,18 @@
 
 <script setup lang="ts">
 interface Course {
-  id: string
-  name: string
-  section?: string
-  description?: string
-  room?: string
-  ownerId: string
-  creationTime: string
-  updateTime: string
-  courseState: string
-  alternateLink: string
+  id?: string | null
+  name?: string | null
+  section?: string | null
+  description?: string | null
+  room?: string | null
+  ownerId?: string | null
+  creationTime?: string | null
+  updateTime?: string | null
+  courseState?: string | null
+  alternateLink?: string | null
+  studentCount?: number
+  assignmentCount?: number
 }
 
 interface Props {
@@ -106,7 +108,7 @@ const courseStatusText = computed(() => {
 })
 
 // Utility functions
-const formatDate = (dateString: string) => {
+const formatDate = (dateString?: string | null) => {
   if (!dateString) return 'N/A'
   
   const date = new Date(dateString)

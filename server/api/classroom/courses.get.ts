@@ -1,5 +1,10 @@
-import { google } from 'googleapis'
+import { google, type classroom_v1 } from 'googleapis'
 import { getServerSession } from '#auth'
+
+type CourseWithCounts = classroom_v1.Schema$Course & {
+  studentCount?: number
+  assignmentCount?: number
+}
 
 export default defineEventHandler(async (event) => {
   // Verificar que el usuario esté autenticado
@@ -42,8 +47,8 @@ export default defineEventHandler(async (event) => {
       pageSize: 100 // Máximo 100 cursos por página
     })
 
-    const courses = response.data.courses || []
-    const userId = session.user?.id
+    const courses: CourseWithCounts[] = response.data.courses || []
+    const userId = getSessionUserId(session)
 
     // Filtrar cursos según el rol solicitado
     let filteredCourses = courses

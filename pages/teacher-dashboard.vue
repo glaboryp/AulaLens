@@ -76,7 +76,7 @@
               {{ error.message || 'Ha ocurrido un error inesperado' }}
             </p>
             <UButton
-              color="red"
+              color="error"
               size="sm"
               @click="refresh()"
             >
@@ -97,7 +97,7 @@
           <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             <TeacherCourseCard
               v-for="(course, index) in ownedCourses"
-              :key="course.id"
+              :key="course.id ?? index"
               :course="course"
               :class="[
                 'course-card-animation transform hover:scale-105 transition-all duration-300',
@@ -150,7 +150,7 @@
                 
                 <UButton
                   :variant="sortBy === 'name' ? 'solid' : 'ghost'"
-                  :color="sortBy === 'name' ? 'primary' : 'gray'"
+                  :color="sortBy === 'name' ? 'primary' : 'neutral'"
                   size="sm"
                   class="flex items-center space-x-1 cursor-pointer"
                   @click="setSortBy('name')"
@@ -161,7 +161,7 @@
                 
                 <UButton
                   :variant="sortBy === 'healthScore' ? 'solid' : 'ghost'"
-                  :color="sortBy === 'healthScore' ? 'primary' : 'gray'"
+                  :color="sortBy === 'healthScore' ? 'primary' : 'neutral'"
                   size="sm"
                   class="flex items-center space-x-1 cursor-pointer"
                   @click="setSortBy('healthScore')"
@@ -172,7 +172,7 @@
                 
                 <UButton
                   :variant="sortBy === 'completionRate' ? 'solid' : 'ghost'"
-                  :color="sortBy === 'completionRate' ? 'primary' : 'gray'"
+                  :color="sortBy === 'completionRate' ? 'primary' : 'neutral'"
                   size="sm"
                   class="flex items-center space-x-1 cursor-pointer"
                   @click="setSortBy('completionRate')"
@@ -203,7 +203,7 @@
                 {{ studentsError.message || 'Ha ocurrido un error inesperado' }}
               </p>
               <UButton
-                color="red"
+                color="error"
                 size="sm"
                 @click="refreshStudents()"
               >
@@ -256,8 +256,6 @@ const { startDataLoading, finishDataLoading } = import.meta.client
   : { startDataLoading: (_route?: string) => {}, finishDataLoading: () => {} }
 
 // Estado local para mantener los datos durante las transiciones
-const stableCourses = ref([])
-const stableStudents = ref([])
 const isFirstLoad = ref(true)
 const isTransitioning = ref(false)
 
@@ -276,6 +274,9 @@ const { data: studentsData, pending: studentsPending, error: studentsError, refr
   key: 'teacher-students',
   server: false
 })
+
+const stableCourses = ref<NonNullable<typeof data.value>['courses']>([])
+const stableStudents = ref<NonNullable<typeof studentsData.value>['students']>([])
 
 // Observar cambios en data para actualizar el estado estable solo cuando hay datos reales
 watch(data, (newData) => {
@@ -407,9 +408,9 @@ const healthScore = computed(() => {
 
 // Definir tipos
 interface Course {
-  id: string
-  name: string
-  ownerId: string
+  id?: string | null
+  name?: string | null
+  ownerId?: string | null
 }
 
 // Funciones para ordenamiento de estudiantes
