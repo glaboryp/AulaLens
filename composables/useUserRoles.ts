@@ -17,8 +17,8 @@ export const useUserRoles = () => {
       // Hacer peticiones paralelas para ambos roles con un timeout
       const fetchWithTimeout = (url: string, timeout = 5000) => {
         return Promise.race([
-          $fetch(url),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout))
+          $fetch<{ courses?: unknown[] }>(url),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout))
         ])
       }
 

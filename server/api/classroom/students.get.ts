@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
       auth: oauth2Client
     })
 
-    const userId = session.user?.id
+    const userId = getSessionUserId(session)
 
     // Primero obtener los cursos donde el usuario es profesor
     const coursesResponse = await classroom.courses.list({
@@ -107,8 +107,8 @@ export default defineEventHandler(async (event) => {
                           })
 
                           const submissions = submissionsResponse.data.studentSubmissions || []
-                          if (submissions.length > 0) {
-                            const submission = submissions[0]
+                          const submission = submissions[0]
+                          if (submission) {
                             if (submission.state === 'TURNED_IN' || submission.state === 'RETURNED') {
                               completedAssignments++
 
