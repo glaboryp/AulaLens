@@ -1,7 +1,7 @@
 import { google } from 'googleapis'
 import { getServerSession } from '#auth'
 
-// Interfaz para la sesión extendida con tokens de OAuth
+// Interfaz para la sesión extendida
 interface ExtendedSession {
   user?: {
     id?: string
@@ -10,22 +10,21 @@ interface ExtendedSession {
     image?: string | null
   }
   expires: string
-  accessToken?: string
-  refreshToken?: string
 }
 
 export default defineEventHandler(async (event) => {
-  try {
-    // Verificar que el usuario esté autenticado
-    const session = await getServerSession(event) as ExtendedSession
-    
-    if (!session || !session.accessToken) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'No autorizado. Debes iniciar sesión primero.'
-      })
-    }
+  // Verificar que el usuario esté autenticado
+  const session = await getServerSession(event) as ExtendedSession
+  const tokens = await getGoogleOAuthTokens(event)
+  
+  if (!session || !tokens) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'No autorizado. Debes iniciar sesión primero.'
+    })
+  }
 
+  try {
     // Configurar el cliente OAuth2 de Google
     const oauth2Client = new google.auth.OAuth2(
       useRuntimeConfig().googleClientId,
@@ -34,8 +33,8 @@ export default defineEventHandler(async (event) => {
 
     // Establecer las credenciales con el token de acceso del usuario
     oauth2Client.setCredentials({
-      access_token: session.accessToken,
-      refresh_token: session.refreshToken
+      access_token: tokens.accessToken,
+      refresh_token: tokens.refreshToken
     })
 
     // Crear el cliente de Google Classroom

@@ -89,10 +89,17 @@ Sigue estos pasos para configurar y ejecutar AulaLens en tu máquina local.
         # Genera un secreto aleatorio para firmar las sesiones
         NUXT_AUTH_SECRET=un_secreto_muy_largo_y_seguro
 
+        # Origen público de la app (en desarrollo: http://localhost:3000)
+        AUTH_ORIGIN=http://localhost:3000
+
         # Credenciales obtenidas desde Google Cloud Console
         GOOGLE_CLIENT_ID=tu_client_id.apps.googleusercontent.com
         GOOGLE_CLIENT_SECRET=tu_client_secret
         ```
+
+    * **`AUTH_ORIGIN` y `NEXTAUTH_URL`:** `next-auth` construye el `redirect_uri` de Google y decide si las cookies son `Secure` a partir de `NEXTAUTH_URL` (o de `VERCEL`/`AUTH_TRUST_HOST`); no usa el host de la petición. Para no depender de la plataforma, la app exige `AUTH_ORIGIN` (el origen público, p. ej. `https://aulalens.example.com`) y **deriva `NEXTAUTH_URL` de él al arrancar**. Si defines `NEXTAUTH_URL` a mano, debe apuntar al mismo origen que `AUTH_ORIGIN`; si no coinciden, o si falta `AUTH_ORIGIN` en producción, el servidor no arranca y muestra el motivo. En desarrollo, si omites `AUTH_ORIGIN`, se usa `http://localhost:3000`.
+    * **`AUTH_ORIGIN` se lee solo en runtime, nunca en el build:** el build no incorpora ningún origen. Al arrancar, el servidor usa `AUTH_ORIGIN` como única fuente también para la configuración pública que Nuxt envía al cliente (`auth.computed.fullBaseUrl`, `auth.baseURL` y `authUrl`, mediante las variables `NUXT_PUBLIC_AUTH_*`). Puedes construir una vez y desplegar en distintos orígenes. No definas `NUXT_PUBLIC_AUTH_*` a mano: si contradicen a `AUTH_ORIGIN`, el servidor no arranca. `NUXT_AUTH_BASE_URL` ya no se usa.
+    * Añade `<AUTH_ORIGIN>/api/auth/callback/google` como URI de redirección autorizada en Google Cloud Console.
 
 ### Ejecutar la aplicación
 
@@ -103,6 +110,11 @@ Sigue estos pasos para configurar y ejecutar AulaLens en tu máquina local.
 
 2.  **Abre tu navegador:**
     * La aplicación estará disponible en [http://localhost:3000](http://localhost:3000).
+
+### Producción y tests
+
+* **Build y arranque:** `pnpm build` (no necesita `AUTH_ORIGIN`) y `node .output/server/index.mjs`. El servidor de producción no lee `.env`: define `AUTH_ORIGIN` (y, en runtime, `NUXT_AUTH_SECRET`, `NUXT_GOOGLE_CLIENT_ID` y `NUXT_GOOGLE_CLIENT_SECRET` si no estaban presentes al construir) en el entorno del proceso.
+* **Tests de autenticación:** `pnpm test:auth`. Construye la app **sin** `AUTH_ORIGIN` (sobrescribe `.output`, ~30 s), la arranca con distintos orígenes (sin red, con Google simulado) y comprueba `redirect_uri`, cookies `Secure`, la configuración pública enviada al cliente (sin `localhost`) y la validación de `AUTH_ORIGIN`/`NEXTAUTH_URL`.
 
 ## 📄 Licencia
 

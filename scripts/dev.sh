@@ -19,4 +19,4 @@ sleep 1
 
 # Iniciar el servidor
 echo "✅ Puerto 3000 libre. Iniciando servidor..."
-NODE_OPTIONS='--no-deprecation' npx nuxt dev --port 3000 --host localhost
+NODE_OPTIONS='--no-deprecation' pnpm exec nuxt dev --port 3000 --host localhost

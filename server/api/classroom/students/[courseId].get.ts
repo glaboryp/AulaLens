@@ -2,17 +2,18 @@ import { google } from 'googleapis'
 import { getServerSession } from '#auth'
 
 export default defineEventHandler(async (event) => {
-  try {
-    // Verificar que el usuario esté autenticado
-    const session = await getServerSession(event)
-    
-    if (!session || !session.accessToken) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'No autorizado. Debes iniciar sesión primero.'
-      })
-    }
+  // Verificar que el usuario esté autenticado
+  const session = await getServerSession(event)
+  const tokens = await getGoogleOAuthTokens(event)
+  
+  if (!session || !tokens) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'No autorizado. Debes iniciar sesión primero.'
+    })
+  }
 
+  try {
     // Obtener el courseId de los parámetros de la URL
     const courseId = getRouterParam(event, 'courseId')
     
@@ -31,8 +32,8 @@ export default defineEventHandler(async (event) => {
 
     // Establecer las credenciales con el token de acceso del usuario
     oauth2Client.setCredentials({
-      access_token: session.accessToken,
-      refresh_token: session.refreshToken
+      access_token: tokens.accessToken,
+      refresh_token: tokens.refreshToken
     })
 
     // Crear el cliente de Google Classroom
@@ -86,25 +87,27 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error al obtener estudiantes del curso:', error)
 
+    const errorCode = (error as { code?: number })?.code
+
     // Manejar diferentes tipos de errores
-    if (error.code === 401) {
+    if (errorCode === 401) {
       throw createError({
         statusCode: 401,
         statusMessage: 'Token de acceso expirado. Por favor, inicia sesión nuevamente.'
       })
     }
 
-    if (error.code === 403) {
+    if (errorCode === 403) {
       throw createError({
         statusCode: 403,
         statusMessage: 'No tienes permisos para acceder a este curso o a la información de los estudiantes.'
       })
     }
 
-    if (error.code === 404) {
+    if (errorCode === 404) {
       throw createError({
         statusCode: 404,
         statusMessage: 'Curso no encontrado o no tienes acceso a él.'

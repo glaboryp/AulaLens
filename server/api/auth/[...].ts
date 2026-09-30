@@ -9,8 +9,6 @@ interface ExtendedSession {
     image?: string | null
   }
   expires: string
-  accessToken?: string
-  refreshToken?: string
 }
 
 export default NuxtAuthHandler({
@@ -52,11 +50,11 @@ export default NuxtAuthHandler({
       }
       return token
     },
+    // La sesión se envía al navegador (/api/auth/session): los tokens OAuth se
+    // quedan en el JWT y solo se leen en servidor con getGoogleOAuthTokens().
     session: async ({ session, token }) => {
       const extendedSession: ExtendedSession = {
-        ...session,
-        accessToken: token.accessToken as string,
-        refreshToken: token.refreshToken as string,
+        expires: session.expires,
         user: token.user as ExtendedSession['user']
       }
       return extendedSession
