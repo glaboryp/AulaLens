@@ -11,7 +11,7 @@ if (mockPort) {
   const originalRequest = https.request
 
   https.request = function (input, ...rest) {
-    // googleapis (gaxios + node-fetch 2) llama con un objeto de opciones, no con una URL.
+    // googleapis (gaxios + node-fetch) llama con un objeto de opciones o con una URL, según la versión.
     if (input && typeof input === 'object' && !(input instanceof URL) && input.hostname === 'classroom.googleapis.com') {
       const options = { ...input, protocol: 'http:', hostname: '127.0.0.1', host: '127.0.0.1', port: mockPort }
       delete options.agent
@@ -19,6 +19,14 @@ if (mockPort) {
     }
 
     const href = typeof input === 'string' ? input : input instanceof URL ? input.href : null
+
+    if (href && new URL(href).hostname === 'classroom.googleapis.com') {
+      const url = new URL(href)
+      const [options, ...others] = typeof rest[0] === 'object' ? rest : [{}, ...rest]
+      const safeOptions = { ...options }
+      delete safeOptions.agent
+      return http.request(`http://127.0.0.1:${mockPort}${url.pathname}${url.search}`, safeOptions, ...others)
+    }
 
     if (href && new URL(href).hostname === 'accounts.google.com') {
       const url = new URL(href)
