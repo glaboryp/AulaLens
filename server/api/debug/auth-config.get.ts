@@ -8,7 +8,6 @@ export default defineEventHandler((event) => {
     hasAuthSecret: !!config.authSecret,
     hasGoogleClientId: !!config.googleClientId,
     hasGoogleClientSecret: !!config.googleClientSecret,
-    nodeEnv: process.env.NODE_ENV,
-    authUrl: config.public.authUrl
+    nodeEnv: process.env.NODE_ENV
   }
 })

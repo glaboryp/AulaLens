@@ -28,9 +28,6 @@ export default defineNuxtConfig({
   },
   
   auth: {
-    // Solo un valor de plantilla para el build: el origen real es AUTH_ORIGIN en
-    // runtime y lo aplica server/plugins/auth-origin.ts (NUXT_PUBLIC_AUTH_*).
-    baseURL: 'http://localhost:3000',
     provider: {
       type: 'authjs'
     }
@@ -41,14 +38,14 @@ export default defineNuxtConfig({
     googleClientId: process.env.GOOGLE_CLIENT_ID,
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
     public: {
-      // Se rellena en runtime a partir de AUTH_ORIGIN (server/plugins/auth-origin.ts)
-      authUrl: '',
       googleClientId: process.env.GOOGLE_CLIENT_ID
     }
   },
 
   // Configurar redirecciones para las rutas principales
   nitro: {
+    // Debe ir antes que el assertOrigin de @sidebase/nuxt-auth, que solo ve AUTH_ORIGIN ya normalizado
+    plugins: ['~~/server/plugins/auth-origin'],
     routeRules: {
       '/dashboard': { redirect: '/dashboardPage' },
       '/login': { redirect: '/' }

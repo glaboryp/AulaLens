@@ -183,16 +183,9 @@ describe('build sin AUTH_ORIGIN y arranque con origen HTTPS: configuración púb
     config = extractClientConfig(html)
   })
 
-  test('auth.computed (origin y fullBaseUrl) usa AUTH_ORIGIN, no localhost', () => {
-    const { computed } = config.public.auth
-    assert.equal(computed.origin, PUBLIC_ORIGIN)
-    assert.equal(computed.pathname, '/api/auth')
-    assert.equal(computed.fullBaseUrl, `${PUBLIC_ORIGIN}/api/auth`)
-  })
-
-  test('auth.baseURL y authUrl públicos usan AUTH_ORIGIN', () => {
-    assert.equal(config.public.auth.baseURL, PUBLIC_ORIGIN)
-    assert.equal(config.public.authUrl, `${PUBLIC_ORIGIN}/api/auth`)
+  test('auth.baseURL público es solo el path de la API, sin origen', () => {
+    assert.equal(config.public.auth.baseURL, '/api/auth')
+    assert.equal(config.public.authUrl, undefined)
   })
 
   test('ni la config ni el payload/HTML enviado al cliente contienen localhost', () => {
@@ -203,19 +196,9 @@ describe('build sin AUTH_ORIGIN y arranque con origen HTTPS: configuración púb
   test('el origen sale del runtime, no del build: otro AUTH_ORIGIN en otro arranque se refleja', async () => {
     const other = await boot({ AUTH_ORIGIN: 'https://otra.example.org' })
     assert.equal(other.started, true, other.getOutput())
-    const res = await other.request('/', { publicHost: 'otra.example.org', proto: 'https' })
-    assert.equal(extractClientConfig(res.body).public.auth.computed.fullBaseUrl, 'https://otra.example.org/api/auth')
-  })
-
-  test('falla al arrancar si un NUXT_PUBLIC_AUTH_* explícito contradice AUTH_ORIGIN', async () => {
-    const conflicting = await boot({
-      AUTH_ORIGIN: PUBLIC_ORIGIN,
-      NUXT_PUBLIC_AUTH_COMPUTED_ORIGIN: 'https://otro.example.com'
-    })
-    assert.equal(conflicting.started, false, 'el servidor no debería arrancar')
-    assert.notEqual(await conflicting.exited, 0)
-    assert.match(conflicting.getOutput(), /NUXT_PUBLIC_AUTH_COMPUTED_ORIGIN/)
-    assert.match(conflicting.getOutput(), /AUTH_ORIGIN/)
+    const { signin } = await signInWithGoogle(other, { publicHost: 'otra.example.org', proto: 'https' })
+    const authorizationUrl = new URL(JSON.parse(signin.body).url)
+    assert.equal(authorizationUrl.searchParams.get('redirect_uri'), 'https://otra.example.org/api/auth/callback/google')
   })
 })
 

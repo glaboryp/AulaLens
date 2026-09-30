@@ -20,8 +20,6 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: vue-router
         update-types: ["version-update:semver-major"]
-      - dependency-name: "@sidebase/nuxt-auth"
-        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
