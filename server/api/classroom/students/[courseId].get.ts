@@ -87,25 +87,27 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error al obtener estudiantes del curso:', error)
 
+    const errorCode = (error as { code?: number })?.code
+
     // Manejar diferentes tipos de errores
-    if (error.code === 401) {
+    if (errorCode === 401) {
       throw createError({
         statusCode: 401,
         statusMessage: 'Token de acceso expirado. Por favor, inicia sesión nuevamente.'
       })
     }
 
-    if (error.code === 403) {
+    if (errorCode === 403) {
       throw createError({
         statusCode: 403,
         statusMessage: 'No tienes permisos para acceder a este curso o a la información de los estudiantes.'
       })
     }
 
-    if (error.code === 404) {
+    if (errorCode === 404) {
       throw createError({
         statusCode: 404,
         statusMessage: 'Curso no encontrado o no tienes acceso a él.'
