@@ -177,6 +177,7 @@ if (import.meta.client) {
     startNavigation: () => {},
     finishNavigation: () => {},
     finishDataLoading: () => {},
+    clearLoading: () => {},
     globalLoadingState: ref({
       isNavigating: false,
       isLoadingData: false,
@@ -186,11 +187,12 @@ if (import.meta.client) {
 }
 
 // Composable para roles de usuario (protegido para SSR)
-const { userRoles, fetchUserRoles, getDefaultRoute } = import.meta.client 
+const { userRoles, fetchUserRoles, resetRoles, getDefaultRoute } = import.meta.client 
   ? useUserRoles() 
   : { 
       userRoles: ref({ hasStudentCourses: true, hasTeacherCourses: true, isLoaded: false }), 
       fetchUserRoles: async () => ({}), 
+      resetRoles: () => {}, 
       getDefaultRoute: () => '/student-dashboard' 
     }
 
@@ -199,6 +201,7 @@ const {
   startNavigation, 
   finishNavigation,
   finishDataLoading,
+  clearLoading,
   globalLoadingState 
 } = globalLoadingComposable
 
@@ -220,7 +223,7 @@ const handleClickOutside = (event: Event) => {
 watch(() => session.value?.user?.email, async (newEmail, oldEmail) => {
   if (newEmail !== oldEmail && import.meta.client) {
     // Reset roles when user changes
-    userRoles.value.isLoaded = false
+    resetRoles()
     await fetchUserRoles()
     await checkAndRedirectUser()
   }
@@ -298,7 +301,7 @@ const handleNavigation = async (path: string, _title: string) => {
     finishNavigation()
     // En caso de error, limpiar completamente
     setTimeout(() => {
-      globalLoadingState.value.currentRoute = null
+      clearLoading()
     }, 100)
   }
 }
