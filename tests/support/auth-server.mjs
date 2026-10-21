@@ -174,6 +174,7 @@ export async function startDevServer(env = {}) {
       HOME: process.env.HOME,
       NODE_OPTIONS: '--no-deprecation',
       AUTH_ORIGIN: 'http://localhost:3000',
+      NUXT_IGNORE_LOCK: '1',
       ...env
     },
     stdio: ['ignore', 'pipe', 'pipe']

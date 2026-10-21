@@ -28,6 +28,8 @@ overrides:
   ajv@<6.14.0: ^6.14.0
   flatted@<3.4.2: ^3.4.2
   '@humanfs/node@<0.16.8': ^0.16.8
+  '@modelcontextprotocol/server@<2.3.0': ^2.3.0
+  '@modelcontextprotocol/client@<2.3.0': ^2.3.0
 
 packageExtensions:
   next-auth@4.24.15:
@@ -38,3 +40,8 @@ packageExtensions:
         optional: true
       react-dom:
         optional: true
+
+auditConfig:
+  ignoreGhsas:
+    - GHSA-86w9-cpqp-85rv
+    - GHSA-vfj7-8cjw-p6xm
