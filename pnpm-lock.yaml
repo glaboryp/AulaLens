@@ -58,8 +58,8 @@ importers:
         specifier: ^10.13.0
         version: 10.13.0(jiti@2.7.0)
       googleapis:
-        specifier: ^187.0.0
-        version: 187.0.0
+        specifier: ^188.0.0
+        version: 188.0.0
       next-auth:
         specifier: 4.24.15
         version: 4.24.15(patch_hash=1e05c7503444c31ace584b87560fe14fb425e656bb99011ecc6f7c20525e1913)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3005,8 +3005,8 @@ packages:
     resolution: {integrity: sha512-wtv/e7JYgmtpIPcSez2EFD/Wx49DPsRX2rj15D7hTwc7tDsP82dcwoX/I4+zE38mu6S9PcghizzzADLf+ZMunA==}
     engines: {node: '>=22'}
 
-  googleapis@187.0.0:
-    resolution: {integrity: sha512-5hpTXGmBIJK43TmZQqQpVxu6IvM/NVy9e2ePbVWSkXSS46+221td6xgtcK9wEKr+MbxusPa0twIYcdGtNgwSWQ==}
+  googleapis@188.0.0:
+    resolution: {integrity: sha512-dLGvMAlYOiemwYnhFoy1bDd+dnB6o8mGxnXhLCirAjAww8F/Qs59XY3EHm7p7RGENtDRTqyM7oV7DQ22V4BaOA==}
     engines: {node: '>=22.0.0'}
 
   gopd@1.2.0:
@@ -8444,7 +8444,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  googleapis@187.0.0:
+  googleapis@188.0.0:
     dependencies:
       google-auth-library: 11.3.1
       googleapis-common: 9.3.1
