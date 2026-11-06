@@ -40,7 +40,3 @@ packageExtensions:
         optional: true
       react-dom:
         optional: true
-
-auditConfig:
-  ignoreGhsas:
-    - GHSA-86w9-cpqp-85rv
