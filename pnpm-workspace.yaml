@@ -9,6 +9,7 @@ overrides:
   nanoid@<3.3.18: ^3.3.18
   tar@<7.5.21: ^7.5.21
   glob@>=10.2.0 <10.5.0: ^10.5.0
+  '@vercel/nft>glob': ^14.0.2
   node-forge@<1.4.0: ^1.4.0
   rollup@>=4.0.0 <4.59.0: ^4.59.0
   serialize-javascript@<7.0.5: ^7.0.5
