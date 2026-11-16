@@ -16,14 +16,14 @@
     "@nuxt/eslint": "1.17.0",
     "@nuxt/ui": "^4.12.0",
     "@sidebase/nuxt-auth": "^1.4.0",
-    "eslint": "^10.14.0",
+    "eslint": "^10.15.0",
     "googleapis": "^190.0.0",
     "next-auth": "4.24.15",
     "nuxt": "^4.6.4",
     "punycode": "^2.3.1",
     "typescript": "^6.0.3",
     "vue": "^3.5.45",
-    "vue-router": "^5.5.0"
+    "vue-router": "^5.5.1"
   },
   "engines": {
     "node": "24.x"
